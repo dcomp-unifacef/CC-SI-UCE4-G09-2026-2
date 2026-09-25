@@ -5,9 +5,12 @@
  */
 
 import app from '../app'
-import chalk from 'chalk'
 import { createServer } from 'http'
 import { ExpressError } from '../types/error'
+
+const chalk = {
+  cyan: (value: string) => value,
+}
 
 /**
  * Get port from environment and store in Express.

@@ -2,7 +2,7 @@
 import { prisma } from "../database/client";
 
 import type { CreateAlunoDto }
-  from "../dto/aluno/createAlunoDto.ts";
+  from "../dto/aluno/createAlunoDto";
 
 import type { UpdateAlunoDto }
   from "../dto/aluno/updateAlunoDto.ts";
