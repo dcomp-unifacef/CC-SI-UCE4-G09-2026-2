@@ -1,4 +1,4 @@
-import * as repositoriy from "../repositories/alunoRepository"
+import * as repository from "../repositories/alunoRepository"
 
 import type {Aluno} from "../../generated/prisma/client"
 import type { CreateAlunoDto } from "../dto/aluno/createAlunoDto"
@@ -7,13 +7,13 @@ import type { UpdateAlunoDto } from "../dto/aluno/updateAlunoDto"
 import { NotFoundError } from "../errors/NotFoundError";
 
 export async function findAll(): Promise<Aluno[]> {
-    return repositoriy.findAll();
+    return repository.findAll();
 }
 
 export async function findById(
     id: number
 ): Promise<Aluno>{
-    const aluno = await repositoriy.findById(id);
+    const aluno = await repository.findById(id);
     if (!aluno){
         throw new NotFoundError("Aluno não encontrado.");
     }
@@ -23,7 +23,7 @@ export async function findById(
 export async function create(
     data: CreateAlunoDto
 ): Promise<Aluno> {
-    return repositoriy.create(data);
+    return repository.create(data);
 }
 
 export async function update(
@@ -32,7 +32,7 @@ export async function update(
 ): Promise<Aluno> {
     await findById(id);
 
-    return repositoriy.update(id, data);
+    return repository.update(id, data);
 }
 
 export async function remove(
@@ -40,5 +40,5 @@ export async function remove(
 ): Promise<Aluno> {
     await findById(id);
 
-    return repositoriy.remove(id);
+    return repository.remove(id);
 }
