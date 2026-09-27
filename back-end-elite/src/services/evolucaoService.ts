@@ -6,6 +6,7 @@ import type { CreateEvolucaoDto } from "../dto/evolucao/createEvolucaoDto"
 import type { UpdateEvolucaoDto } from "../dto/evolucao/updateEvolucaoDto"
 
 import { NotFoundError } from "../errors/NotFoundError"
+import { AppError } from "../errors/AppError";
 
 export async function findAll(): Promise<Evolucao[]> {
     return repository.findAll();
@@ -23,10 +24,23 @@ export async function findById(
 }
 
 export async function create(
-    data: CreateEvolucaoDto
+  data: CreateEvolucaoDto
 ): Promise<Evolucao> {
-    return repository.create(data);
+  if (data.pesoAtual <= 0 || data.bioimpedancia <= 0) {
+    throw new AppError(
+      "Peso e bioimpedância devem ser valores positivos.",
+      400
+    );
+  }
 
+  if (new Date(data.dataAvaliacao) > new Date()) {
+    throw new AppError(
+      "A data de avaliação não pode ser futura.",
+      400
+    );
+  }
+
+  return repository.create(data);
 }
 
 export async function update(
