@@ -47,6 +47,11 @@ export async function retrieveOne(
     try {
         const id = Number(req.params.id);
 
+        if(Number.isNaN(id)){
+            res.status(400).json({message: "Id inválido."}); 
+            return;
+        }
+
         const aluno = await service.findById(id);
 
         res.json(aluno);
@@ -76,7 +81,10 @@ export async function update(
 ): Promise<void> {
     try {
         const id = Number(req.params.id);
-
+        if(Number.isNaN(id)){
+            res.status(400).json({message: "Id inválido."}); 
+            return;
+        }
         const aluno = await service.update(
             id, 
             req.body
@@ -95,7 +103,10 @@ export async function remove(
 ): Promise<void> {
     try {
         const id = Number(req.params.id);
-
+        if(Number.isNaN(id)){
+            res.status(400).json({message: "Id inválido."}); 
+            return;
+        }
         await service.remove(id);
 
         res.status(204).end();
