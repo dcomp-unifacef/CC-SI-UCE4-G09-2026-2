@@ -33,5 +33,10 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
-  "type": "module"
+  "type": "module",
+  "allowScripts": {
+    "@prisma/engines@7.10.0": true,
+    "esbuild@0.28.2": true,
+    "prisma@7.10.0": true
+  }
 }
