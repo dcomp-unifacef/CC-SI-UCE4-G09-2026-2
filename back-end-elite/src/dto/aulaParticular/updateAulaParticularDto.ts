@@ -1,3 +1,4 @@
 import type { CreateAulaParticularDto } from "./createAulaParticularDto";
 
-export type UpdateAulaParticularDto = Partial<CreateAulaParticularDto>;
+export type UpdateAulaParticularDto =
+    Partial<CreateAulaParticularDto>;
