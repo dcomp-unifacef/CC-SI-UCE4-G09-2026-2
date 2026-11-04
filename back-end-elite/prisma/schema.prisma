@@ -14,18 +14,44 @@ datasource db {
 
 
 
+
+
 model Pessoa {
   id            Int    @id @default(autoincrement())
-  cpf           String 
+  cpf           String @unique
   nome          String
 }
 
 
-model professor {
-  id            Int     @id @default(autoincrement())
-  especialidade String  
-  contato       String
+model Professor {
+  id                  Int     @id @default(autoincrement())
+  cpf                 String  @unique
+  nome                String  
+  especialidade       String  
+  contato             String
+  //relação com aula
+  aulas         Aula[]
+  //descomentar quando der merge:
+  //aulasParticulares AulaParticular[]
+} 
+
+
+model Aula {
+  id             Int      @id @default(autoincrement())
+  data           DateTime 
+  horarioInicio  String
+  duracaoMinutos Int
+  presente       Boolean  @default(true)
+  observacao     String
+  professorId    Int
+  professor      Professor @relation(fields: [professorId], references: [id])
+  //descomentar quando der merge :
+  //modalidadeId Int 
+  //modalidade   Modalidade @relation(fields: [modalidadeId], references: [id]
+  //aulaParticular AulaParticular? 
 }
+
+
 
 model Aluno {
   id               Int        @id @default(autoincrement())
@@ -37,7 +63,7 @@ model Aluno {
   valorMensalidade Float
   graduacao        String
   evolucoes        Evolucao[]
-  aulaParticular   aulaParticular[]
+  aulaParticular   AulaParticular[]
 
 }
 
@@ -52,7 +78,7 @@ model Evolucao {
 }
 
 
-model aulaParticular {
+model AulaParticular {
   id            Int     @id @default(autoincrement())
   data          String
   horario       String
@@ -60,23 +86,14 @@ model aulaParticular {
   aluno         Aluno   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }
 
-model Aula {
-  id            Int      @id @default(autoincrement())
-  dataAula      DateTime 
-  horarioIni    String
-  duracaomin    Int
-  presente      Boolean  @default(true)
-  obsevacao     String
-}
 
-
-model modalidade {
+model Modalidade {
   id            Int      @id @default(autoincrement())
   nome          String
 }
 
 
-model horario {
+model Horario {
   id            Int      @id @default(autoincrement())
   diaSemana     String   
   horainicio    String
