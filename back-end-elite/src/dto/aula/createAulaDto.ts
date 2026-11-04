@@ -3,6 +3,6 @@ export interface CreateAulaDto {
   horarioInicio: string;
   duracaoMinutos: number;
   presente?: boolean;
-  observacao?: string | null;
+  observacao: string;
   professorId: number;
 }

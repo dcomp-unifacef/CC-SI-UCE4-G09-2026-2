@@ -1,26 +1,45 @@
 import { prisma } from "../database/client";
 
-// Cria uma nova pessoa
-export function create(data: any) {
-  return prisma.pessoa.create({ data });
-}
 
-// Encontra um pessoa por id
-export function findById(id: number) {
-  return prisma.pessoa.findUnique({ where: { id } });
-}
 
-// Lista todos as pessoas
+import type { CreatePessoaDto }
+ from "../dto/pessoa/createPessoaDto.ts";
+
+
+import type { UpdatePessoaDto }
+ from "../dto/pessoa/updatePessoaDto.ts";
+
+
+
 export function findAll() {
-  return prisma.pessoa.findMany();
+  return prisma.pessoa.findMany({
+    orderBy: {
+      nome: "asc",
+    },
+  });
 }
 
-// Atualiza uma pessoa pelo id
-export function updateById(id: number, data: any) {
-  return prisma.pessoa.update({ where: { id }, data });
+export function findById(id: number) {
+  return prisma.pessoa.findUnique({
+    where: { id },
+  });
 }
 
-// Exclui uma pessoa pelo id
-export function deleteById(id: number) {
-  return prisma.pessoa.delete({ where: { id } });
+export function create(data: CreatePessoaDto) {
+  return prisma.pessoa.create({
+    data,
+  });
+}
+
+export function update(id: number, data: UpdatePessoaDto) {
+  return prisma.pessoa.update({
+    where: { id },
+    data,
+  });
+}
+
+export function remove(id: number) {
+  return prisma.pessoa.delete({
+    where: { id },
+  });
 }
