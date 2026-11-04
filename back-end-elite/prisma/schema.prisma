@@ -12,20 +12,53 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model Aluno {
-  id               Int        @id @default(autoincrement())
-  cpf              String     @unique
-  nome             String
-  idade            Int
-  peso             Float
-  altura           Float
-  valorMensalidade Float
-  graduacao        String
-  evolucoes        Evolucao[]
-
+  id                   Int                   @id @default(autoincrement())
+  cpf                  String                @unique
+  nome                 String
+  idade                Int
+  peso                 Float
+  altura               Float
+  valorMensalidade     Float
+  graduacao            String
+  evolucoes            Evolucao[]
+  presencas            Presenca[]
+  inscricoesCampeonato InscricaoCampeonato[]
 }
 
+model Presenca {
+  id      Int      @id @default(autoincrement())
+  data    DateTime
+  hora    String
+  foto    String
+  alunoId Int
+  aluno   Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  @@unique([alunoId, data])
+}
+
+model Campeonato {
+  id          Int                   @id @default(autoincrement())
+  nome        String                @unique
+  data        DateTime
+  local       String
+  locomocao   String
+  valores     Float
+  descricao   String
+  pesosDeLuta String[]
+  inscricoes  InscricaoCampeonato[]
+}
+
+model InscricaoCampeonato {
+  id           Int        @id @default(autoincrement())
+  pesoDeLuta   String
+  campeonatoId Int
+  alunoId      Int
+  campeonato   Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
+  aluno        Aluno      @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  @@unique([campeonatoId, alunoId])
+}
 
 model Evolucao {
   id            Int      @id @default(autoincrement())
@@ -35,4 +68,3 @@ model Evolucao {
   alunoId       Int
   aluno         Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }
-
