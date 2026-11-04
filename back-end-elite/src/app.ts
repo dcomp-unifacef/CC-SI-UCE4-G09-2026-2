@@ -6,6 +6,9 @@ import indexRouter from './routes/index'
 import usersRouter from './routes/users'
 import alunosRouter from './routes/alunos'
 import evolucoesRouter from './routes/evolucoes'
+import aulaRouter from './routes/aula'
+import professorRouter from './routes/professor'
+import pessoaRouter from './routes/pessoa'
 const app = express()
 
 app.use(logger('dev'))
@@ -20,5 +23,8 @@ app.use('/users', usersRouter)
 
 app.use('/alunos', alunosRouter)
 app.use('/evolucoes', evolucoesRouter)
+app.use('/aula', aulaRouter)
+app.use('/professor', professorRouter)
+app.use('/pessoa', pessoaRouter)
 
 export default app
