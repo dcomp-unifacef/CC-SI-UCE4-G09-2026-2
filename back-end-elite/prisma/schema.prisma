@@ -12,6 +12,18 @@ datasource db {
   provider = "postgresql"
 }
 
+model Pessoa {
+  id   Int    @id @default(autoincrement())
+  cpf  String
+  nome String
+}
+
+model professor {
+  id            Int    @id @default(autoincrement())
+  especialidade String
+  contato       String
+}
+
 model Aluno {
   id                   Int                   @id @default(autoincrement())
   cpf                  String                @unique
@@ -22,6 +34,7 @@ model Aluno {
   valorMensalidade     Float
   graduacao            String
   evolucoes            Evolucao[]
+  aulaParticular       aulaParticular[]
   presencas            Presenca[]
   inscricoesCampeonato InscricaoCampeonato[]
 }
@@ -67,4 +80,34 @@ model Evolucao {
   dataAvaliacao DateTime
   alunoId       Int
   aluno         Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
+
+model aulaParticular {
+  id      Int    @id @default(autoincrement())
+  data    String
+  horario String
+  alunoId Int
+  aluno   Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
+
+model Aula {
+  id         Int      @id @default(autoincrement())
+  dataAula   DateTime
+  horarioIni String
+  duracaomin Int
+  presente   Boolean  @default(true)
+  obsevacao  String
+}
+
+model modalidade {
+  id   Int    @id @default(autoincrement())
+  nome String
+}
+
+model horario {
+  id           Int    @id @default(autoincrement())
+  diaSemana    String
+  horainicio   String
+  horafim      String
+  limitteAluns Int
 }
