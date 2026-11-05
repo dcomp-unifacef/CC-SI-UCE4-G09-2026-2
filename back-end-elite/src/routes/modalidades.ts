@@ -1,11 +1,8 @@
 
 import { Router } from "express";
-import * as controller
- from "../controllers/modalidadeController";
-
+import * as controller from "../controllers/modalidadeController";
 
 const router = Router();
-
 
 router.get("/", controller.retrieveAll);
 router.get("/:id", controller.retrieveOne);

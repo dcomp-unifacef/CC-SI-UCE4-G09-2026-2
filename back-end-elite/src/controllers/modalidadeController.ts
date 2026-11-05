@@ -1,4 +1,5 @@
 import type {
+<<<<<<< HEAD
  Request,
  Response,
  NextFunction,
@@ -10,6 +11,19 @@ import type { UpdateModalidadeDto } from "../dto/modalidade/updateModalidadeDto"
 
 
 type ModalidadeIdParams = { 
+=======
+    Request,
+    Response,
+    NextFunction,
+} from "express";
+
+import * as service from "../services/modalidadeService";
+
+import type { CreateModalidadeDto } from "../dto/modalidade/createModalidadeDto";
+import type { UpdateModalidadeDto } from "../dto/modalidade/updateModalidadeDto";
+
+type ModalidadeIdParams = {
+>>>>>>> origin/juliaM
     id: string;
 };
 
@@ -35,17 +49,33 @@ export async function retrieveAll(
         res.json(modalidades);
     } catch (error) {
         next(error);
+<<<<<<< HEAD
         
+=======
+>>>>>>> origin/juliaM
     }
 }
 
 export async function retrieveOne(
+<<<<<<< HEAD
     req: Request,
+=======
+    req: Request<ModalidadeIdParams>,
+>>>>>>> origin/juliaM
     res: Response,
     next: NextFunction
 ): Promise<void> {
     try {
         const id = Number(req.params.id);
+<<<<<<< HEAD
+=======
+
+        if (!Number.isInteger(id) || id <= 0) {
+            res.status(400).json({ message: "Id inválido." });
+            return;
+        }
+
+>>>>>>> origin/juliaM
         const modalidade = await service.findById(id);
         res.json(modalidade);
     } catch (error) {
@@ -74,10 +104,19 @@ export async function update(
     try {
         const id = Number(req.params.id);
 
+<<<<<<< HEAD
         const modalidade = await service.update(
             id,
             req.body
         );
+=======
+        if (!Number.isInteger(id) || id <= 0) {
+            res.status(400).json({ message: "Id inválido." });
+            return;
+        }
+
+        const modalidade = await service.update(id, req.body);
+>>>>>>> origin/juliaM
         res.json(modalidade);
     } catch (error) {
         next(error);
@@ -92,10 +131,23 @@ export async function remove(
     try {
         const id = Number(req.params.id);
 
+<<<<<<< HEAD
         await service.remove(id);
 
+=======
+        if (!Number.isInteger(id) || id <= 0) {
+            res.status(400).json({ message: "Id inválido." });
+            return;
+        }
+
+        await service.remove(id);
+>>>>>>> origin/juliaM
         res.status(204).end();
     } catch (error) {
         next(error);
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/juliaM

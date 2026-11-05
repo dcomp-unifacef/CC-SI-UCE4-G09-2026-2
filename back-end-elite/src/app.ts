@@ -7,12 +7,16 @@ import usersRouter from './routes/users'
 import alunosRouter from './routes/alunos'
 import evolucoesRouter from './routes/evolucoes'
 
+
 import aulaRouter from './routes/aula'
 import professorRouter from './routes/professor'
 import pessoaRouter from './routes/pessoa'
 import turmasRouter from './routes/turmas'
-import modalidadesRouter from './routes/modalidades'
 import notificacoesRouter from './routes/notificacoes'
+import modalidadesRouter from './routes/modalidades'
+import horariosRouter from './routes/horarios'
+import aulasParticularesRouter from './routes/aulasParticulares'
+import { errorHandler } from './middlewares/errorHandler'
 
 
 const app = express()
@@ -29,11 +33,19 @@ app.use('/users', usersRouter)
 
 app.use('/alunos', alunosRouter)
 app.use('/evolucoes', evolucoesRouter)
+
 app.use('/aula', aulaRouter)
 app.use('/professor', professorRouter)
 app.use('/pessoa', pessoaRouter)
 app.use('/turmas', turmasRouter)
 app.use('/modalidades', modalidadesRouter)
 app.use('./notificacoes', notificacoesRouter)
+app.use('/modalidades', modalidadesRouter)
+app.use('/horarios', horariosRouter)
+app.use('/aulas-particulares', aulasParticularesRouter)
+
+//Tratamento de erros
+app.use(errorHandler)
+
 
 export default app

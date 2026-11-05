@@ -80,22 +80,51 @@ model Evolucao {
   aluno         Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }
 
+enum StatusAulaParticular {
+  AGENDADA
+  CONCLUIDA
+  CANCELADA
+}
 
-model Horario {
+
+model aulaParticular {
+  id                 Int @id @default(autoincrement())
+  data               String
+  horario            String
+  alunoId            Int
+  aluno              Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  status             StatusAulaParticular @default(AGENDADA)
+  presenca           Boolean?
+
+  recorrenciaId      Int?
+  recorrencia        RecorrenciaAulaParticular? @relation(fields: [recorrenciaId], references: [id])
+
+  @@index([alunoId, data, horario])
+  @@index([recorrenciaId])
+  
+}
+
+model RecorrenciaAulaParticular {
+  id         Int      @id @default(autoincrement())
+  alunoId    Int
+  dataInicio String
+  dataFim    String
+  diasSemana Int[]
+  horario    String
+
+  aulas      aulaParticular[]
+}
+
+
+
+
+model horario {
   id            Int      @id @default(autoincrement())
   diaSemana     String   
   horainicio    String
   horafim       String
   limitteAluns  Int
-}
-
-
-model aulaParticular {
-  id      Int    @id @default(autoincrement())
-  data    String
-  horario String
-  alunoId Int
-  aluno   Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }
 
 
