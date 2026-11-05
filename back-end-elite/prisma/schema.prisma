@@ -15,7 +15,6 @@ datasource db {
 
 
 
-
 model Pessoa {
   id            Int    @id @default(autoincrement())
   cpf           String @unique
@@ -49,13 +48,16 @@ model Aula {
   //modalidadeId Int 
   //modalidade   Modalidade @relation(fields: [modalidadeId], references: [id]
   //aulaParticular AulaParticular? 
+  turmaId    Int
+  turma      Turma    @relation(fields: [turmaId], references: [id])
+
 }
 
 
 
 model Aluno {
-  id               Int        @id @default(autoincrement())
-  cpf              String     @unique
+  id               Int              @id @default(autoincrement())
+  cpf              String           @unique
   nome             String
   idade            Int
   peso             Float
@@ -63,10 +65,11 @@ model Aluno {
   valorMensalidade Float
   graduacao        String
   evolucoes        Evolucao[]
-  aulaParticular   AulaParticular[]
-
+  aulaParticular   aulaParticular[]
+  turmas           Turma[]
+  financeiros      Financeiro[]
+  notificacoes     Notificacao[]
 }
-
 
 model Evolucao {
   id            Int      @id @default(autoincrement())
@@ -75,21 +78,6 @@ model Evolucao {
   dataAvaliacao DateTime
   alunoId       Int
   aluno         Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-}
-
-
-model AulaParticular {
-  id            Int     @id @default(autoincrement())
-  data          String
-  horario       String
-  alunoId       Int
-  aluno         Aluno   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-}
-
-
-model Modalidade {
-  id            Int      @id @default(autoincrement())
-  nome          String
 }
 
 
@@ -102,4 +90,48 @@ model Horario {
 }
 
 
+model aulaParticular {
+  id      Int    @id @default(autoincrement())
+  data    String
+  horario String
+  alunoId Int
+  aluno   Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
 
+
+
+model Modalidade {
+  id      Int    @id @default(autoincrement())
+  nome    String
+  turmaId Int
+  turma   Turma  @relation(fields: [turmaId], references: [id])
+}
+
+
+
+model Turma {
+  id          Int          @id @default(autoincrement())
+  nome        String
+  alunos      Aluno[]
+  aulas       Aula[]
+  modalidades Modalidade[]
+}
+
+model Financeiro {
+  id            Int    @id @default(autoincrement())
+  valor         Float
+  tipoDePlano   String
+  desconto      Float
+  taxaExtra     Float
+  dataPagamento String
+  alunoId       Int
+  aluno         Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
+
+model Notificacao {
+  id              Int    @id @default(autoincrement())
+  tipoNotificacao String
+  mensagem        String
+  alunoId         Int
+  aluno           Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
