@@ -73,6 +73,10 @@ export async function create(data: CreateCampeonatoDto) {
 }
 
 export async function update(id: number, data: UpdateCampeonatoDto) {
+  if (!data || Object.keys(data).length === 0) {
+    throw new AppError("Informe ao menos um campo para atualizar.", 400);
+  }
+
   await findById(id);
   validateFields(data);
   const sanitized = clean(data);

@@ -55,6 +55,10 @@ export async function create(data: CreatePresencaDto) {
 }
 
 export async function update(id: number, data: UpdatePresencaDto) {
+  if (!data || Object.keys(data).length === 0) {
+    throw new AppError("Informe ao menos um campo para atualizar.", 400);
+  }
+
   const atual = await findById(id);
   const alunoId = data.alunoId ?? atual.alunoId;
   const normalizedData = data.data ? normalizeDate(data.data) : atual.data;
