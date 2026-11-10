@@ -5,4 +5,6 @@ export interface CreateAulaDto {
   presente?: boolean;
   observacao: string;
   professorId: number;
+  modalidadeId: number;
+  turmaId: number;
 }

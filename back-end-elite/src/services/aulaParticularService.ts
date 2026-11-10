@@ -2,7 +2,7 @@
 import * as repository from "../repositories/aulaParticularRepository";
 import * as alunoService from "./alunoService";
 
-import type { aulaParticular } from "../../generated/prisma/client";
+import type { AulaParticular } from "../../generated/prisma/client";
 
 import type { CreateAulaParticularDto } from "../dto/aulaParticular/createAulaParticularDto";
 import type { UpdateAulaParticularDto } from "../dto/aulaParticular/updateAulaParticularDto";
@@ -89,14 +89,14 @@ async function validarConflito(
 }
 
 // Lista todas as aulas particulares.
-export async function findAll(): Promise<aulaParticular[]> {
+export async function findAll(): Promise<AulaParticular[]> {
     return repository.findAll();
 }
 
 // Busca uma aula particular pelo ID.
 export async function findById(
     id: number
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     const aula = await repository.findById(id);
 
     if (!aula) {
@@ -111,14 +111,14 @@ export async function findById(
 // Cria uma aula utilizando as regras de agendamento.
 export async function create(
     data: CreateAulaParticularDto
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     return agendar(data);
 }
 
 // Agenda uma aula particular individual.
 export async function agendar(
     data: CreateAulaParticularDto
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     if (!data || !Number.isInteger(data.alunoId) || data.alunoId <= 0) {
         throw new BadRequestError("Aluno inválido.");
     }
@@ -141,7 +141,7 @@ export async function agendar(
 export async function update(
     id: number,
     data: UpdateAulaParticularDto
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     const aula = await findById(id);
 
     if (aula.status !== "AGENDADA") {
@@ -190,7 +190,7 @@ export async function remove(id: number): Promise<void> {
 // Cancela uma aula particular individual.
 export async function cancelar(
     id: number
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     const aula = await findById(id);
 
     if (aula.status !== "AGENDADA") {
@@ -206,7 +206,7 @@ export async function cancelar(
 export async function registrar(
     id: number,
     presenca: boolean
-): Promise<aulaParticular> {
+): Promise<AulaParticular> {
     const aula = await findById(id);
 
     if (aula.status !== "AGENDADA") {

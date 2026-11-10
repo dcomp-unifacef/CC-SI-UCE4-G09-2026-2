@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-export interface CreateModalidadeDto{
-    nome: string,
-    turmaId: number,
-}
-=======
-export type CreateModalidadeDto = {
+export interface CreateModalidadeDto {
     nome: string;
-};
->>>>>>> origin/juliaM
+    turmaId: number;
+}
