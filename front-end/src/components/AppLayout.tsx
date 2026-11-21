@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { NavLink as RouterNavLink, useNavigate } from 'react-router'
 import {
-  LayoutDashboard, Users, Calendar, Trophy,
+  LayoutDashboard, Users, Users2, Calendar, Trophy,
   ClipboardCheck, Wallet, Bell, LogOut, Menu, X, Swords,
 } from 'lucide-react'
 import Logo from './Logo'
@@ -16,6 +16,7 @@ const nav = [
   { to: '/campeonatos', label: 'Campeonatos', icon: Trophy },
   { to: '/frequencia', label: 'Frequência', icon: ClipboardCheck },
   { to: '/financeiro', label: 'Financeiro', icon: Wallet },
+  { to: '/professores', label: 'Professores',  icon: Users2 },
   { to: '/modalidades', label: 'Modalidades', icon: Swords },
   { to: '/notificacoes', label: 'Notificações', icon: Bell },
 ]

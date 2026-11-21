@@ -21,6 +21,7 @@ import Modalidades  from './pages/Modalidades'
 import Relatorios   from './pages/Relatorios'
 import Configuracoes from './pages/Configuracoes'
 import Particulares from './pages/Particulares'
+import Professores  from './pages/Professores'
 
 // Páginas aluno
 import AlunoInicio       from './pages/aluno/Inicio'
@@ -102,6 +103,7 @@ function AppRoutes() {
       <Route path="/relatorios"  element={<Protected><Admin><Relatorios /></Admin></Protected>} />
       <Route path="/configuracoes" element={<Protected><Admin><Configuracoes /></Admin></Protected>} />
       <Route path="/particulares"  element={<Protected><Admin><Particulares /></Admin></Protected>} />
+      <Route path="/professores"   element={<Protected><Admin><Professores /></Admin></Protected>} />
 
       {/* Aluno */}
       <Route path="/minhas-aulas"    element={<Protected><Aluno><MinhasAulas /></Aluno></Protected>} />
