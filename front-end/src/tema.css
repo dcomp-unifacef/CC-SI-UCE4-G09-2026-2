@@ -329,3 +329,307 @@ h1, h2, h3, h4, h5, h6, .font-display {
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fade-in-up { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
 .fade-in-up { animation: fade-in-up 0.5s ease-out both; }
+
+
+/* ============================================================
+   UTILITÁRIOS — card-elevated, stat-card, score, shimmer,
+   pulse-dot, badge-status, faixa-bar, animações
+   ============================================================ */
+
+/* ---- Variáveis de modalidade / faixa (referenciadas pelo JS) ---- */
+:root,
+[data-bs-theme="dark"] {
+  --mod-boxe:   215 16% 35%;
+  --mod-muay:   207 22% 37%;
+  --mod-jiu:    150 19% 30%;
+  --mod-func:   0   0%  33%;
+
+  --faixa-branca:        0   0%  90%;
+  --faixa-azul:          217 60% 35%;
+  --faixa-roxa:          270 40% 35%;
+  --faixa-marrom:        25  50% 28%;
+  --faixa-preta:         0   0%   8%;
+  --faixa-iniciante:     0   0%  63%;
+  --faixa-intermediario: 207 13% 55%;
+
+  --gradient-card: linear-gradient(160deg, hsl(0 0% 9%) 0%, hsl(0 0% 6%) 100%);
+  --gradient-champ: linear-gradient(135deg, hsl(207 13% 22%) 0%, hsl(0 0% 5%) 100%);
+  --shadow-card:     0 4px 24px rgba(0,0,0,0.6);
+  --shadow-elevated: 0 12px 40px rgba(0,0,0,0.75);
+}
+
+/* ---- card-elevated ---- */
+.card-elevated {
+  background-color: #111111;
+  background-image: var(--gradient-card);
+  border: 1px solid #2a2a2a;
+  border-radius: 0.625rem;
+  color: #ffffff;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.card-elevated:hover {
+  border-color: rgba(108, 127, 142, 0.6);
+  box-shadow: var(--shadow-elevated), 0 0 0 1px rgba(108,127,142,0.15);
+  transform: translateY(-2px);
+}
+
+/* ---- stat-card (card-elevated + padding pronto) ---- */
+.stat-card {
+  background-color: #111111;
+  background-image: var(--gradient-card);
+  border: 1px solid #2a2a2a;
+  border-radius: 0.625rem;
+  color: #ffffff;
+  box-shadow: var(--shadow-card);
+  padding: 1.25rem;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.stat-card:hover {
+  border-color: rgba(108, 127, 142, 0.6);
+  box-shadow: var(--shadow-elevated);
+  transform: translateY(-2px);
+}
+
+/* ---- Número estilo "placar" (Bebas Neue) ---- */
+.score {
+  font-family: 'Bebas Neue', 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+}
+
+/* ---- badge-status (pílula semântica) ---- */
+.badge-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 50rem;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid transparent;
+}
+.badge-status.ativo       { background: rgba(45,106,79,.15);  color: #4ade80; border-color: rgba(45,106,79,.3); }
+.badge-status.inadimplente{ background: rgba(127,29,29,.15); color: #f87171; border-color: rgba(127,29,29,.3); }
+.badge-status.inativo     { background: rgba(42,42,42,.5);   color: #a0a0a0; border-color: #2a2a2a; }
+.badge-status.atrasado    { background: rgba(127,29,29,.15); color: #f87171; border-color: rgba(127,29,29,.3); }
+
+/* ---- faixa-bar (barra fina de graduação) ---- */
+.faixa-bar {
+  height: 4px;
+  border-radius: 50rem;
+  display: block;
+}
+
+/* ---- Shimmer / skeleton ---- */
+.shimmer {
+  background: linear-gradient(90deg,
+    #111111 0%, #1a1a1a 50%, #111111 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---- Pulse dot (ponto pulsante antes do texto) ---- */
+.pulse-dot::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* ---- Animações de entrada ---- */
+@keyframes fade-in-up {
+  0%   { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fade-in-up 0.4s ease-out both; }
+
+@keyframes fade-in {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.3s ease-out both; }
+
+/* ---- Cores de texto semânticas ---- */
+.text-success-efc { color: #4ade80; }
+.text-danger-efc  { color: #f87171; }
+.text-warning-efc { color: #fbbf24; }
+.text-muted-efc   { color: #a0a0a0; }
+
+/* ---- Utilitários de fundo semântico ---- */
+.bg-success-soft  { background: rgba(45,106,79,.12); }
+.bg-danger-soft   { background: rgba(127,29,29,.12); }
+.bg-warning-soft  { background: rgba(146,102,26,.12); }
+.bg-primary-soft  { background: rgba(108,127,142,.12); }
+
+/* ---- Divisor com texto ---- */
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #606060;
+}
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #2a2a2a;
+}
+
+/* ---- Avatar iniciais ---- */
+.avatar-initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #242424;
+  color: #a0a0a0;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* ---- Página section header (padrão Lovable) ---- */
+.page-eyebrow {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  color: #a0a0a0;
+  margin-bottom: 0.125rem;
+}
+.page-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.25rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+/* ---- Tabela escura ---- */
+.table-efc {
+  color: #ffffff;
+}
+.table-efc thead th {
+  background: #0d0d0d;
+  border-color: #2a2a2a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a0a0a0;
+  padding: 0.75rem 1rem;
+}
+.table-efc tbody td {
+  border-color: #1a1a1a;
+  padding: 0.75rem 1rem;
+  vertical-align: middle;
+}
+.table-efc tbody tr {
+  transition: background 0.15s;
+}
+.table-efc tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+}
+
+/* ---- Offcanvas escuro ---- */
+.offcanvas {
+  background-color: #0d0d0d !important;
+  border-left: 1px solid #2a2a2a !important;
+}
+.offcanvas-header {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+/* ---- Modal escuro ---- */
+.modal-content {
+  background-color: #111111;
+  border: 1px solid #2a2a2a;
+  color: #ffffff;
+}
+.modal-header {
+  border-bottom: 1px solid #1a1a1a;
+}
+.modal-footer {
+  border-top: 1px solid #1a1a1a;
+}
+
+/* ---- Nav tabs escuras ---- */
+.nav-tabs {
+  border-bottom-color: #2a2a2a;
+}
+.nav-tabs .nav-link {
+  color: #a0a0a0;
+  border-color: transparent;
+  font-size: 0.8125rem;
+}
+.nav-tabs .nav-link:hover {
+  color: #ffffff;
+  border-color: transparent;
+}
+.nav-tabs .nav-link.active {
+  background: transparent;
+  border-color: transparent transparent #6c7f8e transparent;
+  color: #ffffff;
+}
+
+/* ---- Barra de progresso ---- */
+.progress {
+  background-color: #242424;
+  height: 6px;
+  border-radius: 50rem;
+}
+.progress-bar {
+  background-color: #6c7f8e;
+  border-radius: 50rem;
+}
+
+/* ---- Input group escuro ---- */
+.input-group-text {
+  background-color: #111111;
+  border-color: #2a2a2a;
+  color: #a0a0a0;
+}
+
+/* ---- Heatmap ---- */
+.heatmap-grid {
+  display: grid;
+  gap: 3px;
+}
+.heatmap-cell {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: #1a1a1a;
+  transition: background 0.2s;
+}
+.heatmap-cell[data-level="1"] { background: rgba(108,127,142,.35); }
+.heatmap-cell[data-level="2"] { background: rgba(108,127,142,.60); }
+.heatmap-cell[data-level="3"] { background: rgba(108,127,142,.85); }
+.heatmap-cell[data-level="4"] { background: #6c7f8e; }
+
+/* ---- Gradient capa campeonato ---- */
+.champ-cover {
+  background: var(--gradient-champ);
+  position: relative;
+  overflow: hidden;
+}
