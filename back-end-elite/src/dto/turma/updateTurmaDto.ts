@@ -1,4 +1,4 @@
 export interface UpdateTurmaDto {
-    nome?: string;
-    alunosIds?: number[];
+  nome?: string;
+  alunoIds?: number[];
 }

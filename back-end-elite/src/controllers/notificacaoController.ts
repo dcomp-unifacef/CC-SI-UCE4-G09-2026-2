@@ -127,3 +127,29 @@ export async function remove(
    next(error);
  }
 }
+
+export async function marcarLida(
+  req: Request<NotificacaoIdParams>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const id = Number(req.params.id);
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return; }
+    res.json(await service.marcarLida(id));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function marcarTodasLidas(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    res.json(await service.marcarTodasLidas());
+  } catch (error) {
+    next(error);
+  }
+}

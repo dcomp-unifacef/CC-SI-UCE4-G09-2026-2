@@ -1,37 +1,32 @@
-import * as repository from "../repositories/aulaRepository";
+import * as repository from "../repositories/aulaRepository"
+import type { CreateAulaDto } from "../dto/aula/createAulaDto"
+import type { UpdateAulaDto } from "../dto/aula/updateAulaDto"
+import { NotFoundError } from "../errors/NotFoundError"
+import { AppError } from "../errors/AppError"
 
-import type { Aula } from "../../generated/prisma/client.ts";
-import type { CreateAulaDto } from "../dto/aula/createAulaDto.ts";
-import type { UpdateAulaDto } from "../dto/aula/updateAulaDto.ts";
-
-import { NotFoundError } from "../errors/NotFoundError";
-
-export async function findAll(): Promise<Aula[]> {
-  return repository.findAll();
+export async function findAll() {
+  return repository.findAll()
 }
 
-export async function findById(id: number): Promise<Aula> {
-  const aula = await repository.findById(id);
+export async function findById(id: number) {
+  const aula = await repository.findById(id)
+  if (!aula) throw new NotFoundError("Aula não encontrada.")
+  return aula
+}
 
-  if (!aula) {
-    throw new NotFoundError("Aula não encontrada.");
+export async function create(data: CreateAulaDto) {
+  if (!data.capacidade || data.capacidade <= 0) {
+    throw new AppError("Capacidade é obrigatória e deve ser maior que zero.", 400)
   }
-
-  return aula;
+  return repository.create(data)
 }
 
-export async function create(data: CreateAulaDto): Promise<Aula> {
-  return repository.create(data);
+export async function update(id: number, data: UpdateAulaDto) {
+  await findById(id)
+  return repository.update(id, data)
 }
 
-export async function update(id: number, data: UpdateAulaDto): Promise<Aula> {
-  await findById(id);
-
-  return repository.update(id, data);
-}
-
-export async function remove(id: number): Promise<Aula> {
-  await findById(id);
-
-  return repository.remove(id);
+export async function remove(id: number) {
+  await findById(id)
+  return repository.remove(id)
 }

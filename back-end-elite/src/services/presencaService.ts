@@ -44,14 +44,14 @@ export async function findById(id: number) {
 export async function create(data: CreatePresencaDto) {
   await validateAluno(data.alunoId);
   validateHora(data.hora);
-  if (!data.foto?.trim()) throw new AppError("A foto é obrigatória.", 400);
+  
 
   const normalizedData = normalizeDate(data.data);
   if (await repository.findByAlunoAndData(data.alunoId, normalizedData)) {
     throw new AppError("Presença já registrada.", 409);
   }
 
-  return repository.create({ ...data, foto: data.foto.trim(), data: normalizedData });
+  return repository.create({ ...data, foto: (data.foto ?? '').trim(), data: normalizedData });
 }
 
 export async function update(id: number, data: UpdatePresencaDto) {
@@ -65,9 +65,7 @@ export async function update(id: number, data: UpdatePresencaDto) {
 
   await validateAluno(alunoId);
   if (data.hora !== undefined) validateHora(data.hora);
-  if (data.foto !== undefined && !data.foto.trim()) {
-    throw new AppError("A foto é obrigatória.", 400);
-  }
+  // foto é opcional — validação removida
 
   const duplicada = await repository.findByAlunoAndData(alunoId, normalizedData);
   if (duplicada && duplicada.id !== id) {
@@ -76,7 +74,7 @@ export async function update(id: number, data: UpdatePresencaDto) {
 
   return repository.update(id, {
     ...data,
-    ...(data.foto !== undefined && { foto: data.foto.trim() }),
+    ...(data.foto !== undefined && { foto: (data.foto || '').trim() }),
     data: normalizedData,
   });
 }

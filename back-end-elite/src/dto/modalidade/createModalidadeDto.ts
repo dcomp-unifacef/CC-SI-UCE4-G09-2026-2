@@ -1,4 +1,4 @@
 export interface CreateModalidadeDto {
-    nome: string;
-    turmaId: number;
+  nome: string;
+  turmaId?: number;
 }

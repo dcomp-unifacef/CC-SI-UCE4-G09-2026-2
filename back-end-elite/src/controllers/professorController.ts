@@ -1,110 +1,71 @@
-import type {
-  Request,
-  Response,
-  NextFunction,
-} from "express";
+import type { Request, Response, NextFunction } from "express"
+import * as service from "../services/professorService"
+import type { CreateProfessorDto } from "../dto/professor/createProfessorDto"
+import type { UpdateProfessorDto } from "../dto/professor/updateProfessorDto"
 
-import * as service from "../services/professorService";
+type IdParams = { id: string }
 
-import type { CreateProfessorDto } from "../dto/professor/createProfessorDto.ts";
-import type { UpdateProfessorDto } from "../dto/professor/updateProfessorDto.ts";
-
-type ProfessorIdParams = {
-  id: string;
-};
-
-type CreateProfessorRequest = Request<
-  Record<string, never>,
-  unknown,
-  CreateProfessorDto
->;
-
-type UpdateProfessorRequest = Request<
-  ProfessorIdParams,
-  unknown,
-  UpdateProfessorDto
->;
-
-export async function retrieveAll(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function retrieveAll(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const professores = await service.findAll();
-
-    res.json(professores);
-  }
-  catch (error) {
-    next(error);
-  }
+    res.json(await service.findAll())
+  } catch (error) { next(error) }
 }
 
-export async function retrieveOne(
-  req: Request<ProfessorIdParams>,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function retrieveAllAtivos(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const id = Number(req.params.id);
+    res.json(await service.findAllAtivos())
+  } catch (error) { next(error) }
+}
 
-    const professor = await service.findById(id);
-
-    res.json(professor);
-  }
-  catch (error) {
-    next(error);
-  }
+export async function retrieveOne(req: Request<IdParams>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = Number(req.params.id)
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return }
+    res.json(await service.findById(id))
+  } catch (error) { next(error) }
 }
 
 export async function create(
-  req: CreateProfessorRequest,
-  res: Response,
-  next: NextFunction
+  req: Request<Record<string, never>, unknown, CreateProfessorDto>,
+  res: Response, next: NextFunction
 ): Promise<void> {
   try {
-    const professor = await service.create(req.body);
-
-    res.status(201).json(professor);
-  }
-  catch (error) {
-    next(error);
-  }
+    res.status(201).json(await service.create(req.body))
+  } catch (error) { next(error) }
 }
 
 export async function update(
-  req: UpdateProfessorRequest,
-  res: Response,
-  next: NextFunction
+  req: Request<IdParams, unknown, UpdateProfessorDto>,
+  res: Response, next: NextFunction
 ): Promise<void> {
   try {
-    const id = Number(req.params.id);
-
-    const professor = await service.update(
-      id,
-      req.body
-    );
-
-    res.json(professor);
-  }
-  catch (error) {
-    next(error);
-  }
+    const id = Number(req.params.id)
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return }
+    res.json(await service.update(id, req.body))
+  } catch (error) { next(error) }
 }
 
-export async function remove(
-  req: Request<ProfessorIdParams>,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
+export async function remove(req: Request<IdParams>, res: Response, next: NextFunction): Promise<void> {
   try {
-    const id = Number(req.params.id);
+    const id = Number(req.params.id)
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return }
+    await service.remove(id)
+    res.status(204).end()
+  } catch (error) { next(error) }
+}
 
-    await service.remove(id);
+export async function inativar(req: Request<IdParams>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = Number(req.params.id)
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return }
+    res.json(await service.inativar(id))
+  } catch (error) { next(error) }
+}
 
-    res.status(204).end();
-  }
-  catch (error) {
-    next(error);
-  }
+export async function reativar(req: Request<IdParams>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = Number(req.params.id)
+    if (Number.isNaN(id)) { res.status(400).json({ message: "Id inválido." }); return }
+    res.json(await service.reativar(id))
+  } catch (error) { next(error) }
 }

@@ -101,7 +101,7 @@ export async function remove(
 
         await service.remove(id);
 
-        res.status(204).end;
+        res.status(204).end();
 
     }
     catch(error) {

@@ -3,4 +3,5 @@ export interface CreateProfessorDto {
   nome: string;
   especialidade: string;
   contato: string;
+  ativo?: boolean;
 }

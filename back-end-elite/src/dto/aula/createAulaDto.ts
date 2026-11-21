@@ -1,9 +1,11 @@
 export interface CreateAulaDto {
-  data: Date;
+  data: Date | string;
   horarioInicio: string;
   duracaoMinutos: number;
+  capacidade: number;
+  diaSemana?: number;
   presente?: boolean;
-  observacao: string;
+  observacao?: string;
   professorId: number;
   modalidadeId: number;
   turmaId: number;

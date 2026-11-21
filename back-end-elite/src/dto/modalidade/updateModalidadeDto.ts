@@ -1,4 +1,4 @@
 export interface UpdateModalidadeDto {
-    nome?: string;
-    turmaId?: number;
+  nome?: string;
+  turmaId?: number | null;
 }

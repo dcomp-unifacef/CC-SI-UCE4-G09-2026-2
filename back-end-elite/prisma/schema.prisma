@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,6 +5,18 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum StatusAluno {
+  ATIVO
+  INADIMPLENTE
+  INATIVO
+}
+
+enum StatusAulaParticular {
+  AGENDADA
+  CONCLUIDA
+  CANCELADA
 }
 
 model Pessoa {
@@ -24,27 +31,9 @@ model Professor {
   nome              String
   especialidade     String
   contato           String
-  //relação com aula
+  ativo             Boolean          @default(true)
   aulas             Aula[]
-  //descomentar quando der merge:
   aulasParticulares AulaParticular[]
-}
-
-model Aula {
-  id             Int             @id @default(autoincrement())
-  data           DateTime
-  horarioInicio  String
-  duracaoMinutos Int
-  presente       Boolean         @default(true)
-  observacao     String
-  professorId    Int
-  professor      Professor       @relation(fields: [professorId], references: [id])
-  //descomentar quando der merge :
-  modalidadeId   Int
-  modalidade     Modalidade      @relation(fields: [modalidadeId], references: [id])
-  aulaParticular AulaParticular?
-  turmaId        Int
-  turma          Turma           @relation(fields: [turmaId], references: [id])
 }
 
 model Aluno {
@@ -56,6 +45,12 @@ model Aluno {
   altura               Float
   valorMensalidade     Float
   graduacao            String
+  email                String?
+  telefone             String?
+  dataMatricula        String?
+  streak               Int                   @default(0)
+  status               StatusAluno           @default(ATIVO)
+  modalidades          String[]
   evolucoes            Evolucao[]
   aulaParticular       AulaParticular[]
   turmas               Turma[]
@@ -65,11 +60,29 @@ model Aluno {
   inscricoesCampeonato InscricaoCampeonato[]
 }
 
+model Aula {
+  id             Int             @id @default(autoincrement())
+  data           DateTime
+  horarioInicio  String
+  duracaoMinutos Int
+  capacidade     Int             @default(20)
+  diaSemana      Int             @default(1)
+  presente       Boolean         @default(true)
+  observacao     String          @default("")
+  professorId    Int
+  professor      Professor       @relation(fields: [professorId], references: [id])
+  modalidadeId   Int
+  modalidade     Modalidade      @relation(fields: [modalidadeId], references: [id])
+  aulaParticular AulaParticular?
+  turmaId        Int
+  turma          Turma           @relation(fields: [turmaId], references: [id])
+}
+
 model Presenca {
   id      Int      @id @default(autoincrement())
   data    DateTime
   hora    String
-  foto    String
+  foto    String   @default("")
   alunoId Int
   aluno   Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 
@@ -106,12 +119,6 @@ model Evolucao {
   dataAvaliacao DateTime
   alunoId       Int
   aluno         Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-}
-
-enum StatusAulaParticular {
-  AGENDADA
-  CONCLUIDA
-  CANCELADA
 }
 
 model AulaParticular {
@@ -159,8 +166,8 @@ model Horario {
 model Modalidade {
   id      Int    @id @default(autoincrement())
   nome    String
-  turmaId Int
-  turma   Turma  @relation(fields: [turmaId], references: [id])
+  turmaId Int?
+  turma   Turma? @relation(fields: [turmaId], references: [id])
   aulas   Aula[]
 }
 
@@ -173,20 +180,27 @@ model Turma {
 }
 
 model Financeiro {
-  id            Int    @id @default(autoincrement())
-  valor         Float
-  tipoDePlano   String
-  desconto      Float
-  taxaExtra     Float
-  dataPagamento String
-  alunoId       Int
-  aluno         Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  id             Int      @id @default(autoincrement())
+  valor          Float
+  tipoDePlano    String   @default("")
+  desconto       Float    @default(0)
+  taxaExtra      Float    @default(0)
+  dataPagamento  String   @default("")
+  // Campos adicionados para integração com a UI de pagamentos
+  forma          String   @default("Pix")
+  status         String   @default("aberto")
+  referenciaMes  String   @default("")
+  observacao     String   @default("")
+  alunoId        Int
+  aluno          Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }
 
 model Notificacao {
-  id              Int    @id @default(autoincrement())
+  id              Int      @id @default(autoincrement())
   tipoNotificacao String
   mensagem        String
+  lida            Boolean  @default(false)
+  data            DateTime @default(now())
   alunoId         Int
-  aluno           Aluno  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aluno           Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
 }

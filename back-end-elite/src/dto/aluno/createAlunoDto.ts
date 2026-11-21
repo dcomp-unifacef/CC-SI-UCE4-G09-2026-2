@@ -6,4 +6,10 @@ export interface CreateAlunoDto {
   altura: number;
   valorMensalidade: number;
   graduacao: string;
+  email?: string;
+  telefone?: string;
+  dataMatricula?: string;
+  streak?: number;
+  status?: 'ATIVO' | 'INADIMPLENTE' | 'INATIVO';
+  modalidades?: string[];
 }

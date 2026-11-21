@@ -1,0 +1,13 @@
+-- AlterTable
+ALTER TABLE "Financeiro" ADD COLUMN     "forma" TEXT NOT NULL DEFAULT 'Pix',
+ADD COLUMN     "observacao" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "referenciaMes" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'aberto',
+ALTER COLUMN "tipoDePlano" SET DEFAULT '',
+ALTER COLUMN "desconto" SET DEFAULT 0,
+ALTER COLUMN "taxaExtra" SET DEFAULT 0,
+ALTER COLUMN "dataPagamento" SET DEFAULT '';
+
+-- AlterTable
+ALTER TABLE "Notificacao" ADD COLUMN     "data" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "lida" BOOLEAN NOT NULL DEFAULT false;

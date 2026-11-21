@@ -3,4 +3,5 @@ export interface UpdateProfessorDto {
   nome?: string;
   especialidade?: string;
   contato?: string;
-}   
+  ativo?: boolean;
+}
