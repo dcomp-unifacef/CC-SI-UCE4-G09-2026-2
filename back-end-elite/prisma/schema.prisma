@@ -58,7 +58,11 @@ model Aluno {
   notificacoes         Notificacao[]
   presencas            Presenca[]
   inscricoesCampeonato InscricaoCampeonato[]
+  
+  usuarioId Int?     @unique
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id])
 }
+
 
 model Aula {
   id             Int             @id @default(autoincrement())
@@ -203,4 +207,33 @@ model Notificacao {
   data            DateTime @default(now())
   alunoId         Int
   aluno           Aluno    @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+}
+
+enum Papel {
+  ADMIN
+  ALUNO
+}
+
+model Usuario {
+  id          Int               @id @default(autoincrement())
+  nome        String
+  email       String            @unique
+  senhaHash   String
+  papel       Papel             @default(ALUNO)
+  ativo       Boolean           @default(true)
+  criadoEm    DateTime          @default(now())
+  aluno       Aluno?
+  resetTokens ResetSenhaToken[]
+}
+
+model ResetSenhaToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  expiraEm  DateTime
+  usadoEm   DateTime?
+  criadoEm  DateTime  @default(now())
+  usuarioId Int
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
 }
