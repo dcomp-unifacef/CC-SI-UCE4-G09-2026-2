@@ -122,7 +122,7 @@ export default function Login() {
             </div>
           </div>
 
-          <p className="login-footer text-center mt-5 mb-0">Sistema de gestão · v2 mock</p>
+          <p className="login-footer text-center mt-5 mb-0">Sistema de gestão</p>
         </div>
       </section>
     </div>
