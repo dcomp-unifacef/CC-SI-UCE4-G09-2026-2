@@ -1,80 +1,114 @@
-import { BrowserRouter, Routes, Route } from 'react-router'
-import type { LucideIcon } from 'lucide-react'
-import {
-  LayoutDashboard, Users, Calendar, Trophy, ClipboardCheck,
-  Wallet, Swords, Bell, Home, CalendarDays, TrendingUp, BarChart3, Settings,
-} from 'lucide-react'
-
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import AppLayout from './components/AppLayout'
-import AlunoLayout from './components/AlunoLayout'
-import EmConstrucao from './pages/EmConstrucao'
-import Login from './pages/Login'
-import NotFound from './pages/NotFound'
+import type { ReactNode } from 'react'
 
-/** Admin: sempre usa AppLayout */
-function Admin({ title, icon }: { title: string; icon?: LucideIcon }) {
-  return (
-    <AppLayout>
-      <EmConstrucao title={title} icon={icon} />
-    </AppLayout>
-  )
+import AppLayout    from './components/AppLayout'
+import AlunoLayout  from './components/AlunoLayout'
+
+// Páginas compartilhadas
+import Login       from './pages/Login'
+import NotFound    from './pages/NotFound'
+import Notificacoes from './pages/Notificacoes'
+
+// Páginas admin
+import Dashboard    from './pages/Dashboard'
+import Alunos       from './pages/Alunos'
+import Turmas       from './pages/Turmas'
+import Campeonatos  from './pages/Campeonatos'
+import Frequencia   from './pages/Frequencia'
+import Financeiro   from './pages/Financeiro'
+import Modalidades  from './pages/Modalidades'
+import Relatorios   from './pages/Relatorios'
+import Configuracoes from './pages/Configuracoes'
+import Particulares from './pages/Particulares'
+
+// Páginas aluno
+import AlunoInicio       from './pages/aluno/Inicio'
+import MinhasAulas       from './pages/aluno/MinhasAulas'
+import MinhaFrequencia   from './pages/aluno/MinhaFrequencia'
+import MinhaEvolucao     from './pages/aluno/MinhaEvolucao'
+import MeusCampeonatos   from './pages/aluno/MeusCampeonatos'
+import MeuFinanceiro     from './pages/aluno/MeuFinanceiro'
+
+// ----------------------------------------------------------------
+// Guardas de rota
+// ----------------------------------------------------------------
+
+/** Rota que requer auth — redireciona para /login se não autenticado */
+function Protected({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  if (!user) return <Navigate to="/login" replace />
+  return <>{children}</>
 }
 
-/** Aluno: sempre usa AlunoLayout */
-function Aluno({ title, icon }: { title: string; icon?: LucideIcon }) {
-  return (
-    <AlunoLayout>
-      <EmConstrucao title={title} icon={icon} />
-    </AlunoLayout>
-  )
+/** Envolve em AppLayout (admin) */
+function Admin({ children }: { children: ReactNode }) {
+  return <AppLayout>{children}</AppLayout>
 }
 
-/** Home e Notificações: layout conforme o papel (sem ProtectedRoute) */
-function RoleRoute({ adminTitle, alunoTitle, adminIcon, alunoIcon }: {
-  adminTitle: string
-  alunoTitle: string
-  adminIcon?: LucideIcon
-  alunoIcon?: LucideIcon
-}) {
+/** Envolve em AlunoLayout */
+function Aluno({ children }: { children: ReactNode }) {
+  return <AlunoLayout>{children}</AlunoLayout>
+}
+
+/**
+ * Home: admin → Dashboard, aluno → AlunoInicio.
+ * Usuários sem papel definido caem no dashboard.
+ */
+function HomeRoute() {
   const { isAdmin } = useAuth()
-  return isAdmin ? <Admin title={adminTitle} icon={adminIcon} /> : <Aluno title={alunoTitle} icon={alunoIcon} />
+  return isAdmin ? (
+    <Admin><Dashboard /></Admin>
+  ) : (
+    <Aluno><AlunoInicio /></Aluno>
+  )
 }
 
+/**
+ * Notificações: ambos os papéis acessam, mas com layout diferente.
+ */
+function NotificacoesRoute() {
+  const { isAdmin } = useAuth()
+  return isAdmin ? (
+    <Admin><Notificacoes /></Admin>
+  ) : (
+    <Aluno><Notificacoes /></Aluno>
+  )
+}
+
+// ----------------------------------------------------------------
+// Rotas
+// ----------------------------------------------------------------
 function AppRoutes() {
   return (
     <Routes>
+      {/* Pública */}
       <Route path="/login" element={<Login />} />
 
-      {/* Home — role-routed (admin: Dashboard, aluno: Início) */}
-      <Route
-        path="/"
-        element={<RoleRoute adminTitle="Dashboard" alunoTitle="Início" adminIcon={LayoutDashboard} alunoIcon={Home} />}
-      />
+      {/* Home — papel determina o layout */}
+      <Route path="/" element={<Protected><HomeRoute /></Protected>} />
 
-      {/* Admin (AppLayout) */}
-      <Route path="/alunos" element={<Admin title="Alunos" icon={Users} />} />
-      <Route path="/turmas" element={<Admin title="Aulas & Turmas" icon={Calendar} />} />
-      <Route path="/particulares" element={<Admin title="Aulas Particulares" icon={Swords} />} />
-      <Route path="/campeonatos" element={<Admin title="Campeonatos" icon={Trophy} />} />
-      <Route path="/frequencia" element={<Admin title="Frequência" icon={ClipboardCheck} />} />
-      <Route path="/financeiro" element={<Admin title="Financeiro" icon={Wallet} />} />
-      <Route path="/modalidades" element={<Admin title="Modalidades" icon={Swords} />} />
-      <Route path="/relatorios" element={<Admin title="Relatórios" icon={BarChart3} />} />
-      <Route path="/configuracoes" element={<Admin title="Configurações" icon={Settings} />} />
+      {/* Notificações — ambos os papéis */}
+      <Route path="/notificacoes" element={<Protected><NotificacoesRoute /></Protected>} />
 
-      {/* Notificações — role-routed (ambos compartilham) */}
-      <Route path="/notificacoes" element={<RoleRoute adminTitle="Notificações" alunoTitle="Notificações" adminIcon={Bell} alunoIcon={Bell} />} />
+      {/* Admin */}
+      <Route path="/alunos"      element={<Protected><Admin><Alunos /></Admin></Protected>} />
+      <Route path="/turmas"      element={<Protected><Admin><Turmas /></Admin></Protected>} />
+      <Route path="/campeonatos" element={<Protected><Admin><Campeonatos /></Admin></Protected>} />
+      <Route path="/frequencia"  element={<Protected><Admin><Frequencia /></Admin></Protected>} />
+      <Route path="/financeiro"  element={<Protected><Admin><Financeiro /></Admin></Protected>} />
+      <Route path="/modalidades" element={<Protected><Admin><Modalidades /></Admin></Protected>} />
+      <Route path="/relatorios"  element={<Protected><Admin><Relatorios /></Admin></Protected>} />
+      <Route path="/configuracoes" element={<Protected><Admin><Configuracoes /></Admin></Protected>} />
+      <Route path="/particulares"  element={<Protected><Admin><Particulares /></Admin></Protected>} />
 
-      {/* Aluno (AlunoLayout) */}
-      <Route path="/minhas-aulas" element={<Aluno title="Minhas Aulas" icon={CalendarDays} />} />
-      <Route path="/minha-frequencia" element={<Aluno title="Minha Frequência" icon={ClipboardCheck} />} />
-      <Route path="/minha-evolucao" element={<Aluno title="Minha Evolução" icon={TrendingUp} />} />
-      <Route path="/meus-campeonatos" element={<Aluno title="Meus Campeonatos" icon={Trophy} />} />
-      <Route path="/meu-financeiro" element={<Aluno title="Meu Financeiro" icon={Wallet} />} />
-
-      {/* Público */}
-      <Route path="/pranchas" element={<EmConstrucao title="Pranchas" />} />
+      {/* Aluno */}
+      <Route path="/minhas-aulas"    element={<Protected><Aluno><MinhasAulas /></Aluno></Protected>} />
+      <Route path="/minha-frequencia" element={<Protected><Aluno><MinhaFrequencia /></Aluno></Protected>} />
+      <Route path="/minha-evolucao"  element={<Protected><Aluno><MinhaEvolucao /></Aluno></Protected>} />
+      <Route path="/meus-campeonatos" element={<Protected><Aluno><MeusCampeonatos /></Aluno></Protected>} />
+      <Route path="/meu-financeiro"  element={<Protected><Aluno><MeuFinanceiro /></Aluno></Protected>} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

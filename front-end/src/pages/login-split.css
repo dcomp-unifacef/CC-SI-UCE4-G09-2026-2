@@ -1,0 +1,279 @@
+/* ===== Login split layout (desktop: 2 colunas · mobile: empilhado) ===== */
+
+.lg-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr; /* ~64% / 36% como no mock */
+  background: #0b0c0e;
+  color: #f2f3f5;
+}
+
+/* ---------- Painel da marca ---------- */
+.lg-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+
+  background: #0b0c0e;
+}
+
+/* Textura hexagonal sutil */
+.lg-hex {
+  position: absolute;
+  inset: 0;
+  opacity: 0.65;
+
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='124' viewBox='0 0 72 124'><g fill='none' stroke='%23ffffff' stroke-opacity='0.09' stroke-width='1'><path d='M36 0 L72 21 V62 L36 83 L0 62 V21 Z'/><path d='M36 83 V124 M0 62 V103 L36 124 M72 62 V103 L36 124'/></g></svg>");
+
+  background-size: 72px 124px;
+
+  mask-image: radial-gradient(
+    ellipse at center,
+    #000 0%,
+    transparent 85%
+  );
+
+  -webkit-mask-image: radial-gradient(
+    ellipse at center,
+    #000 0%,
+    transparent 85%
+  );
+
+  pointer-events: none;
+}
+
+.lg-brand-inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+
+
+.lg-logo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 480px;
+  height: 480px;
+  flex-shrink: 0;
+}
+.lg-logo-img {
+  width: 380px;
+  height: 380px;
+  object-fit: contain;
+} 
+
+/* Anéis decorativos ao redor da logo */
+.lg-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  pointer-events: none;
+}
+.lg-ring-1 { inset: -34px; }
+.lg-ring-2 { inset: -78px; border-color: rgba(255, 255, 255, 0.04); }
+
+.lg-tagline {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: #8b9097;
+  white-space: nowrap;
+}
+
+.lg-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: #4e6a85;
+  transform: rotate(45deg);
+}
+
+/* ---------- Painel do formulário ---------- */
+.lg-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 3rem;
+  background: #0e1013;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lg-form-box {
+  width: 100%;
+  max-width: 24rem;
+}
+.lg-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+
+  background-image: url('../assets/fundo.jpeg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  opacity: 0.50;
+  pointer-events: none;
+}
+.lg-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #7f93a8;
+}
+.lg-eyebrow-line {
+  width: 28px;
+  height: 2px;
+  background: #4e6a85;
+}
+
+.lg-title {
+  margin: 0 0 0.6rem;
+  font-size: 2.6rem;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #f2f3f5;
+}
+
+.lg-lead {
+  margin: 0 0 2rem;
+  font-size: 0.95rem;
+  color: #8b9097;
+}
+
+/* Campos */
+.lg-form-box .form-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #c9cdd2;
+  margin-bottom: 0.4rem;
+}
+.lg-form-box .form-control {
+  height: 3rem;
+  background: #141619;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.6rem;
+  color: #f2f3f5;
+  padding: 0 1rem;
+}
+.lg-form-box .form-control::placeholder { color: #6b7076; }
+.lg-form-box .form-control:focus {
+  background: #141619;
+  color: #f2f3f5;
+  border-color: #4e6a85;
+  box-shadow: 0 0 0 3px rgba(78, 106, 133, 0.25);
+}
+
+/* Botão principal (azul aço) */
+.lg-submit {
+  height: 3rem;
+  margin-top: 0.5rem;
+  background: #4e6a85;
+  border: 1px solid #4e6a85;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  color: #fff;
+}
+.lg-submit:hover:not(:disabled) {
+  background: #5b7a99;
+  border-color: #5b7a99;
+}
+
+/* Botões de acesso rápido */
+.lg-form-box .btn-quick {
+  height: 3rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.6rem;
+  color: #e4e6e9;
+}
+.lg-form-box .btn-quick:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Divisor (mantém as classes existentes, só ajusta o visual) */
+.lg-form-box .login-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6b7076;
+}
+.lg-form-box .login-divider span {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lg-form-box .login-footer {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6b7076;
+}
+
+/* ---------- Mobile / tablet: empilhado ---------- */
+@media (max-width: 991.98px) {
+  .lg-page {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .lg-brand-inner { gap: 1.5rem; padding: 2rem 1rem 0.5rem; }
+  .lg-logo-wrap { width: 200px; height: 200px; }
+  .lg-logo-img { width: 200px; height: 200px; }
+  .lg-ring-1 { inset: -22px; }
+  .lg-ring-2 { inset: -48px; }
+
+  .lg-tagline {
+    font-size: 0.8rem;
+    letter-spacing: 0.35em;
+    gap: 0.6rem;
+  }
+
+  .lg-form-panel {
+    align-items: flex-start;
+    border-left: 0;
+    background: transparent;
+    padding: 1.5rem 1.5rem 2rem;
+  }
+
+  /* No mobile o mock esconde o eyebrow/lead e centraliza o título */
+  .lg-eyebrow,
+  .lg-lead { display: none; }
+  .lg-title {
+    text-align: center;
+    font-size: 2.1rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .lg-tagline { letter-spacing: 0.22em; font-size: 0.72rem; }
+}
