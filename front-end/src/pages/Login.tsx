@@ -52,16 +52,18 @@ export default function Login() {
 
   return (
     <div className="lg-page">
-      {/* ===== Painel esquerdo / topo no mobile: marca ===== */}
-      <section className="lg-brand">
-        <div className="lg-hex" />
-        <div className="lg-brand-inner">
+      {/* Fundo em tela cheia (imagem + camadas) */}
+      <div className="lg-bg" aria-hidden="true" />
+      <div className="lg-hex" aria-hidden="true" />
+
+      <main className="lg-center">
+        {/* Marca (lado esquerdo, só no desktop) */}
+        <section className="lg-brand">
           <div className="lg-logo-wrap">
             <span className="lg-ring lg-ring-1" />
             <span className="lg-ring lg-ring-2" />
-            <Logo size={470} />
+            <Logo size={420} />
           </div>
-
           <p className="lg-tagline font-display">
             <span>Disciplina</span>
             <i className="lg-dot" />
@@ -69,12 +71,14 @@ export default function Login() {
             <i className="lg-dot" />
             <span>Evolução</span>
           </p>
-        </div>
-      </section>
+        </section>
 
-      {/* ===== Painel direito / abaixo no mobile: formulário ===== */}
-      <section className="lg-form-panel">
-        <div className="lg-form-box fade-in-up">
+        {/* Card de vidro */}
+        <div className="lg-card fade-in-up">
+          <div className="lg-logo lg-logo-mobile">
+            <Logo size={120} />
+          </div>
+
           <p className="lg-eyebrow">
             <span className="lg-eyebrow-line" /> Acesso ao sistema
           </p>
@@ -115,13 +119,9 @@ export default function Login() {
               />
             </div>
 
-            <div className="d-flex justify-content-between align-items-center" style={{ fontSize: '0.875rem' }}>
-              <Link to="/esqueci-senha" className="text-primary text-decoration-none">
-                Esqueceu a senha?
-              </Link>
-              <Link to="/cadastro" className="text-primary text-decoration-none">
-                Criar conta
-              </Link>
+            <div className="lg-links">
+              <Link to="/esqueci-senha">Esqueceu a senha?</Link>
+              <Link to="/cadastro">Criar conta</Link>
             </div>
 
             <button
@@ -165,7 +165,16 @@ export default function Login() {
             </>
           )}
         </div>
-      </section>
+
+        {/* Lema abaixo do card (só no mobile/tablet) */}
+        <p className="lg-tagline lg-tagline-mobile font-display">
+          <span>Disciplina</span>
+          <i className="lg-dot" />
+          <span>Força</span>
+          <i className="lg-dot" />
+          <span>Evolução</span>
+        </p>
+      </main>
     </div>
   )
 }

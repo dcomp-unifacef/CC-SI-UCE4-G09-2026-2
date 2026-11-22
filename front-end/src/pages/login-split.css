@@ -1,157 +1,135 @@
-/* ===== Login split layout (desktop: 2 colunas · mobile: empilhado) ===== */
+/* ===== Login: fundo em tela cheia + card de vidro (responsivo) =====
+   Layout "congelado": no desktop, logo + card ficam dentro de um contêiner
+   de largura máxima centralizado. Ao dar zoom out (ou em monitores enormes),
+   o conjunto mantém as mesmas proporções em vez de se espalhar. */
 
 .lg-page {
+  position: relative;
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr; /* ~64% / 36% como no mock */
+  min-height: 100dvh;
   background: #0b0c0e;
   color: #f2f3f5;
-}
-
-/* ---------- Painel da marca ---------- */
-.lg-brand {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  overflow-x: hidden;
   isolation: isolate;
-
-  background: #0b0c0e;
 }
 
-/* Textura hexagonal sutil */
-.lg-hex {
-  position: absolute;
+html, body { overflow-x: hidden; }
+
+/* ---------- Fundo ---------- */
+.lg-bg {
+  position: fixed;
   inset: 0;
-  opacity: 0.65;
-
+  z-index: -2;
   background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='124' viewBox='0 0 72 124'><g fill='none' stroke='%23ffffff' stroke-opacity='0.09' stroke-width='1'><path d='M36 0 L72 21 V62 L36 83 L0 62 V21 Z'/><path d='M36 83 V124 M0 62 V103 L36 124 M72 62 V103 L36 124'/></g></svg>");
-
-  background-size: 72px 124px;
-
-  mask-image: radial-gradient(
-    ellipse at center,
-    #000 0%,
-    transparent 85%
-  );
-
-  -webkit-mask-image: radial-gradient(
-    ellipse at center,
-    #000 0%,
-    transparent 85%
-  );
-
-  pointer-events: none;
+    linear-gradient(180deg, rgba(8, 10, 13, 0.55) 0%, rgba(8, 10, 13, 0.75) 100%),
+    url('../assets/fundo.jpeg');
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-.lg-brand-inner {
-  position: relative;
-  z-index: 1;
+.lg-hex {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='124' viewBox='0 0 72 124'><g fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='1'><path d='M36 0 L72 21 V62 L36 83 L0 62 V21 Z'/><path d='M36 83 V124 M0 62 V103 L36 124 M72 62 V103 L36 124'/></g></svg>");
+  background-size: 72px 124px;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, transparent 85%);
+  mask-image: radial-gradient(ellipse at center, #000 0%, transparent 85%);
+}
+
+/* ---------- Contêiner central ---------- */
+.lg-center {
+  width: 100%;
+  max-width: 1320px;      /* trava a composição */
+  margin: 0 auto;
+  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
-  padding: 2rem;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
 }
 
-
+/* ---------- Marca (esquerda, só desktop) ---------- */
+.lg-brand { display: none; }
 
 .lg-logo-wrap {
   position: relative;
   display: grid;
   place-items: center;
-  width: 480px;
-  height: 480px;
+  width: 440px;
+  height: 440px;
   flex-shrink: 0;
 }
-.lg-logo-img {
-  width: 380px;
-  height: 380px;
-  object-fit: contain;
-} 
-
-/* Anéis decorativos ao redor da logo */
+.lg-logo-wrap > :not(.lg-ring) {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+}
 .lg-ring {
   position: absolute;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   pointer-events: none;
 }
-.lg-ring-1 { inset: -34px; }
-.lg-ring-2 { inset: -78px; border-color: rgba(255, 255, 255, 0.04); }
+.lg-ring-1 { inset: -36px; }
+.lg-ring-2 { inset: -82px; border-color: rgba(255, 255, 255, 0.05); }
 
-.lg-tagline {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: 0.5em;
-  text-transform: uppercase;
-  color: #8b9097;
-  white-space: nowrap;
-}
-
-.lg-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  background: #4e6a85;
-  transform: rotate(45deg);
-}
-
-/* ---------- Painel do formulário ---------- */
-.lg-form-panel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2.5rem 3rem;
-  background: #0e1013;
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.lg-form-box {
+/* ---------- Card de vidro ---------- */
+.lg-card {
   width: 100%;
-  max-width: 24rem;
+  max-width: 26rem;
+  padding: 2.25rem 2rem 2rem;
+  background: rgba(14, 16, 19, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
-.lg-brand::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
 
-  background-image: url('../assets/fundo.jpeg');
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
-
-  opacity: 0.50;
-  pointer-events: none;
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lg-card { background: rgba(14, 16, 19, 0.88); }
 }
+
+.lg-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
 .lg-eyebrow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
-  margin: 0 0 0.75rem;
-  font-size: 0.72rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #7f93a8;
+  color: #9fb2c6;
 }
 .lg-eyebrow-line {
-  width: 28px;
+  width: 24px;
   height: 2px;
   background: #4e6a85;
 }
 
 .lg-title {
-  margin: 0 0 0.6rem;
-  font-size: 2.6rem;
-  line-height: 1;
+  margin: 0 0 0.5rem;
+  text-align: center;
+  font-size: 2.2rem;
+  line-height: 1.05;
   font-weight: 700;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -159,41 +137,61 @@
 }
 
 .lg-lead {
-  margin: 0 0 2rem;
-  font-size: 0.95rem;
-  color: #8b9097;
+  margin: 0 0 1.5rem;
+  text-align: center;
+  font-size: 0.92rem;
+  color: #aab0b7;
 }
 
-/* Campos */
-.lg-form-box .form-label {
+/* ---------- Campos ---------- */
+.lg-card .form-label {
   font-size: 0.85rem;
   font-weight: 500;
-  color: #c9cdd2;
+  color: #d5d9de;
   margin-bottom: 0.4rem;
 }
-.lg-form-box .form-control {
+.lg-card .form-control {
   height: 3rem;
-  background: #141619;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.7rem;
   color: #f2f3f5;
   padding: 0 1rem;
+  font-size: 1rem;
 }
-.lg-form-box .form-control::placeholder { color: #6b7076; }
-.lg-form-box .form-control:focus {
-  background: #141619;
+.lg-card .form-control::placeholder { color: #8a9098; }
+.lg-card .form-control:focus {
+  background: rgba(255, 255, 255, 0.11);
   color: #f2f3f5;
-  border-color: #4e6a85;
-  box-shadow: 0 0 0 3px rgba(78, 106, 133, 0.25);
+  border-color: #6f8dab;
+  box-shadow: 0 0 0 3px rgba(111, 141, 171, 0.28);
+}
+.lg-card .form-control:-webkit-autofill {
+  -webkit-text-fill-color: #f2f3f5;
+  -webkit-box-shadow: 0 0 0 1000px rgba(30, 36, 44, 0.9) inset;
+  caret-color: #f2f3f5;
 }
 
-/* Botão principal (azul aço) */
+.lg-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+.lg-links a {
+  color: #b7c4d1;
+  text-decoration: none;
+}
+.lg-links a:hover { color: #fff; text-decoration: underline; }
+
+/* ---------- Botões ---------- */
 .lg-submit {
   height: 3rem;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   background: #4e6a85;
   border: 1px solid #4e6a85;
-  border-radius: 0.6rem;
+  border-radius: 0.7rem;
   font-weight: 600;
   color: #fff;
 }
@@ -202,78 +200,144 @@
   border-color: #5b7a99;
 }
 
-/* Botões de acesso rápido */
-.lg-form-box .btn-quick {
+.lg-card .btn-quick {
   height: 3rem;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 0.7rem;
   color: #e4e6e9;
 }
-.lg-form-box .btn-quick:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.2);
+.lg-card .btn-quick:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Divisor (mantém as classes existentes, só ajusta o visual) */
-.lg-form-box .login-divider {
+.lg-card .login-divider {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  font-size: 0.7rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #6b7076;
-}
-.lg-form-box .login-divider span {
-  flex: 1;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.lg-form-box .login-footer {
   font-size: 0.68rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #6b7076;
+  color: #8a9098;
+}
+.lg-card .login-divider span {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
 }
 
-/* ---------- Mobile / tablet: empilhado ---------- */
+/* ---------- Lema ---------- */
+.lg-tagline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(220, 225, 231, 0.75);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+.lg-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #6f8dab;
+  transform: rotate(45deg);
+}
+
+/* ---------- Desktop: logo à esquerda, card à direita ---------- */
+@media (min-width: 992px) {
+  .lg-center {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+    padding: 2rem 3rem;
+  }
+
+  .lg-brand {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3.5rem;
+  }
+
+  .lg-card { flex-shrink: 0; }
+
+  .lg-logo-mobile,
+  .lg-tagline-mobile { display: none; }
+
+  .lg-tagline { font-size: 0.85rem; letter-spacing: 0.35em; }
+}
+
+/* Notebooks pequenos: logo menor para caber ao lado do card */
+@media (min-width: 992px) and (max-width: 1279.98px) {
+  .lg-logo-wrap { width: 320px; height: 320px; }
+  .lg-ring-1 { inset: -26px; }
+  .lg-ring-2 { inset: -58px; }
+  .lg-center { padding: 2rem 2rem; gap: 2rem; }
+}
+
+/* ---------- Tablet e celular: foco da foto e mais escuro ---------- */
 @media (max-width: 991.98px) {
-  .lg-page {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+  .lg-bg {
+    background-position: 35% center;
+    background-image:
+      linear-gradient(180deg, rgba(8, 10, 13, 0.7) 0%, rgba(8, 10, 13, 0.85) 100%),
+      url('../assets/fundo.jpeg');
+  }
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 575.98px) {
+  .lg-center {
+    justify-content: flex-start;
+    padding-top: 1.5rem;
+    gap: 1.25rem;
   }
 
-  .lg-brand-inner { gap: 1.5rem; padding: 2rem 1rem 0.5rem; }
-  .lg-logo-wrap { width: 200px; height: 200px; }
-  .lg-logo-img { width: 200px; height: 200px; }
-  .lg-ring-1 { inset: -22px; }
-  .lg-ring-2 { inset: -48px; }
-
-  .lg-tagline {
-    font-size: 0.8rem;
-    letter-spacing: 0.35em;
-    gap: 0.6rem;
+  .lg-card {
+    padding: 1.5rem 1.15rem 1.35rem;
+    border-radius: 1rem;
   }
 
-  .lg-form-panel {
-    align-items: flex-start;
-    border-left: 0;
-    background: transparent;
-    padding: 1.5rem 1.5rem 2rem;
-  }
+  .lg-logo { margin-bottom: 0.9rem; }
+  .lg-logo > * { max-width: 96px; height: auto; }
 
-  /* No mobile o mock esconde o eyebrow/lead e centraliza o título */
   .lg-eyebrow,
   .lg-lead { display: none; }
+
   .lg-title {
-    text-align: center;
-    font-size: 2.1rem;
-    margin-bottom: 1.5rem;
+    font-size: 1.85rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .lg-links { font-size: 0.85rem; }
+
+  .lg-tagline {
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    gap: 0.6rem;
   }
 }
 
-@media (max-width: 400px) {
-  .lg-tagline { letter-spacing: 0.22em; font-size: 0.72rem; }
+/* Celular deitado */
+@media (max-height: 520px) and (orientation: landscape) and (max-width: 991.98px) {
+  .lg-center { justify-content: flex-start; padding-top: 1rem; }
+  .lg-logo,
+  .lg-tagline { display: none; }
+}
+
+@media (max-width: 360px) {
+  .lg-tagline { letter-spacing: 0.18em; font-size: 0.66rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lg-card { animation: none !important; }
 }
