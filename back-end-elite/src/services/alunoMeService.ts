@@ -110,3 +110,44 @@ export async function obterCampeonatos(alunoId: number) {
   
   return inscricoes
 }
+
+export async function obterNotificacoes(alunoId: number) {
+  const { prisma } = await import("../database/client")
+  
+  return prisma.notificacao.findMany({
+    where: { alunoId },
+    orderBy: [
+      { lida: "asc" },  // Não lidas primeiro
+      { data: "desc" },  // Mais recentes primeiro
+    ],
+  })
+}
+
+export async function marcarNotificacaoLida(alunoId: number, notificacaoId: number) {
+  const { prisma } = await import("../database/client")
+  
+  // Verificar se a notificação pertence ao aluno antes de marcar
+  const notificacao = await prisma.notificacao.findUnique({
+    where: { id: notificacaoId },
+  })
+  
+  if (!notificacao || notificacao.alunoId !== alunoId) {
+    throw new Error("Notificação não encontrada.")
+  }
+  
+  return prisma.notificacao.update({
+    where: { id: notificacaoId },
+    data: { lida: true },
+  })
+}
+
+export async function marcarTodasNotificacoesLidas(alunoId: number) {
+  const { prisma } = await import("../database/client")
+  
+  const resultado = await prisma.notificacao.updateMany({
+    where: { alunoId, lida: false },
+    data: { lida: true },
+  })
+  
+  return { atualizadas: resultado.count }
+}

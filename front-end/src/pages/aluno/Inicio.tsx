@@ -85,6 +85,7 @@ export default function AlunoInicio() {
 
   // Últimas 5 presenças
   const ultimas = presencas.slice(0, 5)
+  console.log("[DEBUG Início] Presenças do aluno:", presencas.length, presencas)
 
   return (
     <div className="d-flex flex-column gap-4">

@@ -1,24 +1,70 @@
-import { useMemo } from 'react'
-import { ClipboardCheck, Flame, CalendarCheck } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import { alunosMock, frequenciasMock } from '../../data/mockData'
+import { useEffect, useState } from 'react'
+import { ClipboardCheck, Flame, CalendarCheck, Loader2 } from 'lucide-react'
+import { alunoMeApi } from '../../services/api'
+import type { AlunoMeAPI, PresencaAPI } from '../../services/api'
 import StatCard from '../../components/StatCard'
 import HeatmapPresenca from '../../components/HeatmapPresenca'
 
+interface Estado {
+  aluno: AlunoMeAPI | null
+  presencas: PresencaAPI[]
+}
+
 export default function MinhaFrequencia() {
-  const { user } = useAuth()
-  const id    = user?.alunoId ?? 'a2'
-  const aluno = alunosMock.find((a) => a.id === id)
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [dados, setDados] = useState<Estado>({
+    aluno: null,
+    presencas: [],
+  })
 
-  const minhas = useMemo(
-    () => frequenciasMock.filter((f) => f.alunoId === id),
-    [id],
-  )
+  useEffect(() => {
+    async function carregar() {
+      setLoading(true)
+      setErro(null)
+      try {
+        const [aluno, presencas] = await Promise.all([
+          alunoMeApi.obterPerfil(),
+          alunoMeApi.obterFrequencia(),
+        ])
+        setDados({ aluno, presencas })
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao carregar dados')
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregar()
+  }, [])
 
-  const esteMes = useMemo(() => {
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <Loader2 size={32} className="spin" style={{ color: '#6c7f8e' }} />
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="d-flex flex-column gap-4">
+        <div><p className="page-eyebrow">Histórico</p><h1 className="page-title">MINHA FREQUÊNCIA</h1></div>
+        <div className="card-elevated p-4" style={{ border: '1px solid rgba(248,113,113,.3)' }}>
+          <p style={{ color: '#f87171', marginBottom: 0 }}>{erro}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { aluno, presencas } = dados
+
+  if (!aluno) return null
+
+  // Calcular estatísticas
+  const esteMes = presencas.filter((f) => {
     const m = new Date().toISOString().slice(0, 7)
-    return minhas.filter((f) => f.data.startsWith(m)).length
-  }, [minhas])
+    return f.data.startsWith(m)
+  }).length
 
   return (
     <div className="d-flex flex-column gap-4">
@@ -29,13 +75,13 @@ export default function MinhaFrequencia() {
 
       <div className="row g-3">
         <div className="col-sm-4">
-          <StatCard label="Total check-ins" value={minhas.length}      icon={ClipboardCheck} />
+          <StatCard label="Total check-ins" value={presencas.length} icon={ClipboardCheck} />
         </div>
         <div className="col-sm-4">
-          <StatCard label="Este mês"        value={esteMes}            icon={CalendarCheck}  variant="success" />
+          <StatCard label="Este mês" value={esteMes} icon={CalendarCheck} variant="success" />
         </div>
         <div className="col-sm-4">
-          <StatCard label="Streak (dias)"   value={aluno?.streak ?? 0} icon={Flame}          variant="warning" />
+          <StatCard label="Streak (dias)" value={aluno.streak} icon={Flame} variant="warning" />
         </div>
       </div>
 
@@ -46,7 +92,7 @@ export default function MinhaFrequencia() {
         >
           HEATMAP — ÚLTIMOS 90 DIAS
         </h2>
-        <HeatmapPresenca alunoId={id} days={90} />
+        <HeatmapPresenca alunoId={String(aluno.id)} days={90} />
       </div>
 
       <div className="card-elevated p-4">
@@ -57,12 +103,12 @@ export default function MinhaFrequencia() {
           HISTÓRICO RECENTE
         </h2>
         <div className="d-flex flex-column gap-2">
-          {minhas.length === 0 && (
+          {presencas.length === 0 && (
             <p className="text-muted-efc" style={{ fontSize: '0.875rem' }}>
               Nenhum check-in registrado.
             </p>
           )}
-          {minhas.slice(0, 20).map((f) => (
+          {presencas.slice(0, 20).map((f) => (
             <div
               key={f.id}
               className="d-flex align-items-center justify-content-between p-3 rounded"
@@ -73,7 +119,7 @@ export default function MinhaFrequencia() {
                   {new Date(f.data).toLocaleDateString('pt-BR')}
                 </p>
                 <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
-                  {f.hora} · {f.modalidade}
+                  {f.hora}
                 </p>
               </div>
               <span

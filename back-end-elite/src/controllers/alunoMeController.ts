@@ -72,3 +72,34 @@ export async function obterCampeonatos(req: Request, res: Response, next: NextFu
     next(error)
   }
 }
+
+export async function obterNotificacoes(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const notificacoes = await service.obterNotificacoes(req.aluno!.id)
+    res.json(notificacoes)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function marcarNotificacaoLida(req: Request<{ id: string }>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const notificacaoId = Number(req.params.id)
+    if (!Number.isInteger(notificacaoId) || notificacaoId <= 0) {
+      throw new Error("ID inválido.")
+    }
+    const notificacao = await service.marcarNotificacaoLida(req.aluno!.id, notificacaoId)
+    res.json(notificacao)
+  } catch (error) {
+    next(error)
+  }
+}
+
+export async function marcarTodasNotificacoesLidas(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const resultado = await service.marcarTodasNotificacoesLidas(req.aluno!.id)
+    res.json(resultado)
+  } catch (error) {
+    next(error)
+  }
+}

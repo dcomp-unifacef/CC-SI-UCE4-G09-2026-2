@@ -1,38 +1,77 @@
-import { useMemo } from 'react'
-import { Wallet, CheckCircle2, AlertTriangle } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import { alunosMock, pagamentosMock } from '../../data/mockData'
-import type { StatusPagamento } from '../../types'
+import { useEffect, useState } from 'react'
+import { Wallet, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react'
+import { alunoMeApi } from '../../services/api'
+import type { AlunoMeAPI, FinanceiroAPI } from '../../services/api'
 import StatusBadge from '../../components/StatusBadge'
 
-const statusStyle: Record<StatusPagamento, { color: string; border: string; bg: string }> = {
+const statusStyle: Record<'pago' | 'aberto' | 'atrasado', { color: string; border: string; bg: string }> = {
   pago:     { color: '#4ade80', border: 'rgba(74,222,128,.3)',  bg: 'rgba(74,222,128,.1)'  },
   aberto:   { color: '#fbbf24', border: 'rgba(251,191,36,.3)',  bg: 'rgba(251,191,36,.1)'  },
   atrasado: { color: '#f87171', border: 'rgba(248,113,113,.3)', bg: 'rgba(248,113,113,.1)' },
 }
 
+interface Estado {
+  aluno: AlunoMeAPI | null
+  financeiro: FinanceiroAPI[]
+}
+
 export default function MeuFinanceiro() {
-  const { user } = useAuth()
-  const id    = user?.alunoId ?? 'a2'
-  const aluno = alunosMock.find((a) => a.id === id)
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [dados, setDados] = useState<Estado>({
+    aluno: null,
+    financeiro: [],
+  })
 
-  const meus = useMemo(
-    () =>
-      pagamentosMock
-        .filter((p) => p.alunoId === id)
-        .sort((a, b) => b.data.localeCompare(a.data)),
-    [id],
-  )
+  useEffect(() => {
+    async function carregar() {
+      setLoading(true)
+      setErro(null)
+      try {
+        const [aluno, financeiro] = await Promise.all([
+          alunoMeApi.obterPerfil(),
+          alunoMeApi.obterFinanceiro(),
+        ])
+        setDados({ aluno, financeiro })
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao carregar dados')
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregar()
+  }, [])
 
-  const pagos    = meus.filter((p) => p.status === 'pago')
-  const pendentes = meus.filter((p) => p.status !== 'pago')
-  const totalPago = pagos.reduce((s, p) => s + p.valor, 0)
-  const emDia    = pendentes.length === 0
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <Loader2 size={32} className="spin" style={{ color: '#6c7f8e' }} />
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="d-flex flex-column gap-4">
+        <div><p className="page-eyebrow">Mensalidade</p><h1 className="page-title">MEU FINANCEIRO</h1></div>
+        <div className="card-elevated p-4" style={{ border: '1px solid rgba(248,113,113,.3)' }}>
+          <p style={{ color: '#f87171', marginBottom: 0 }}>{erro}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { aluno, financeiro } = dados
 
   if (!aluno) return null
 
-  const statusVal = aluno.status === 'Ativo' ? 'ativo'
-    : aluno.status === 'Inadimplente' ? 'inadimplente'
+  const pagos = financeiro.filter((p) => p.status === 'pago')
+  const pendentes = financeiro.filter((p) => p.status !== 'pago')
+  const totalPago = pagos.reduce((s, p) => s + p.valor, 0)
+  const emDia = pendentes.length === 0
+
+  const statusVal = aluno.status === 'ATIVO' ? 'ativo'
+    : aluno.status === 'INADIMPLENTE' ? 'inadimplente'
     : 'inativo'
 
   return (
@@ -79,7 +118,7 @@ export default function MeuFinanceiro() {
         <div className="col-sm-4">
           <div className="card-elevated p-4">
             <p className="page-eyebrow mb-1">Mensalidade</p>
-            <p className="score mb-0" style={{ fontSize: '1.75rem' }}>R$ {aluno.mensalidade}</p>
+            <p className="score mb-0" style={{ fontSize: '1.75rem' }}>R$ {aluno.valorMensalidade}</p>
           </div>
         </div>
         <div className="col-sm-4">
@@ -114,12 +153,12 @@ export default function MeuFinanceiro() {
         </div>
 
         <div className="d-flex flex-column gap-2">
-          {meus.length === 0 && (
+          {financeiro.length === 0 && (
             <p className="text-muted-efc" style={{ fontSize: '0.875rem' }}>
               Nenhum pagamento registrado.
             </p>
           )}
-          {meus.map((p) => {
+          {financeiro.map((p) => {
             const ss = statusStyle[p.status]
             return (
               <div
@@ -132,7 +171,7 @@ export default function MeuFinanceiro() {
                     Ref. {p.referenciaMes}
                   </p>
                   <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
-                    {p.data ? new Date(p.data).toLocaleDateString('pt-BR') : '—'} · {p.forma}
+                    {p.dataPagamento ? new Date(p.dataPagamento).toLocaleDateString('pt-BR') : '—'} · {p.forma}
                   </p>
                 </div>
                 <div className="d-flex align-items-center gap-3">

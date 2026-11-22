@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Bell, CheckCircle2, CheckCheck, Plus, X, Trash2, Loader2 } from 'lucide-react'
-import { notificacoesApi, alunosApi } from '../services/api'
+import { notificacoesApi, alunosApi, alunoMeApi } from '../services/api'
 import type { NotificacaoAPI, AlunoAPI, TipoNotificacao } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import Toast from '../components/Toast'
@@ -19,7 +19,7 @@ const estiloTipo = (t: string) => tipoStyle[t as TipoNotificacao] ?? tipoStyle.i
 const FORM_VAZIO = { alunoId: '', tipoNotificacao: 'info' as TipoNotificacao, mensagem: '' }
 
 export default function Notificacoes() {
-  const { isAdmin } = useAuth()
+  const { isAdmin, isAluno } = useAuth()
   const [notificacoes, setNotificacoes] = useState<NotificacaoAPI[]>([])
   const [alunos, setAlunos]             = useState<AlunoAPI[]>([])
   const [loading, setLoading]           = useState(true)
@@ -31,19 +31,21 @@ export default function Notificacoes() {
   const [erroForm, setErroForm]         = useState<string | null>(null)
 
   const carregar = useCallback(async () => {
-    // Sem autenticação real, o back-end não sabe qual aluno está logado.
-    // Por segurança, só o administrador carrega a lista.
-    if (!isAdmin) { setLoading(false); return }
     setLoading(true); setErro(null)
     try {
-      const [ns, as] = await Promise.all([notificacoesApi.listar(), alunosApi.listar()])
-      setNotificacoes(ns); setAlunos(as)
+      if (isAdmin) {
+        const [ns, as] = await Promise.all([notificacoesApi.listar(), alunosApi.listar()])
+        setNotificacoes(ns); setAlunos(as)
+      } else if (isAluno) {
+        const ns = await alunoMeApi.obterNotificacoes()
+        setNotificacoes(ns)
+      }
     } catch (e: any) {
       setErro(e.message)
     } finally {
       setLoading(false)
     }
-  }, [isAdmin])
+  }, [isAdmin, isAluno])
 
   useEffect(() => { carregar() }, [carregar])
 
@@ -51,7 +53,12 @@ export default function Notificacoes() {
 
   const handleMarcarLida = async (n: NotificacaoAPI) => {
     try {
-      const att = await notificacoesApi.marcarLida(n.id)
+      let att: NotificacaoAPI
+      if (isAdmin) {
+        att = await notificacoesApi.marcarLida(n.id)
+      } else {
+        att = await alunoMeApi.marcarNotificacaoLida(n.id)
+      }
       setNotificacoes((prev) => prev.map((x) => (x.id === n.id ? att : x)))
     } catch (e: any) {
       setToast({ msg: e.message, type: 'danger' })
@@ -60,7 +67,11 @@ export default function Notificacoes() {
 
   const handleMarcarTodas = async () => {
     try {
-      await notificacoesApi.marcarTodasLidas()
+      if (isAdmin) {
+        await notificacoesApi.marcarTodasLidas()
+      } else {
+        await alunoMeApi.marcarTodasNotificacoesLidas()
+      }
       setNotificacoes((prev) => prev.map((x) => ({ ...x, lida: true })))
       setToast({ msg: 'Todas marcadas como lidas.', type: 'success' })
     } catch (e: any) {
@@ -115,11 +126,9 @@ export default function Notificacoes() {
         <div>
           <p className="page-eyebrow">Central</p>
           <h1 className="page-title">NOTIFICAÇÕES</h1>
-          {isAdmin && (
-            <p className="text-muted-efc mb-0" style={{ fontSize: '0.8125rem' }}>
-              {naoLidas} não lida{naoLidas !== 1 ? 's' : ''} · {notificacoes.length} no total
-            </p>
-          )}
+          <p className="text-muted-efc mb-0" style={{ fontSize: '0.8125rem' }}>
+            {naoLidas} não lida{naoLidas !== 1 ? 's' : ''} · {notificacoes.length} no total
+          </p>
         </div>
         {isAdmin && (
           <div className="d-flex gap-2">
@@ -133,66 +142,66 @@ export default function Notificacoes() {
             </button>
           </div>
         )}
+        {isAluno && (
+          <button className="btn btn-outline-primary d-flex align-items-center gap-2"
+            onClick={handleMarcarTodas} disabled={naoLidas === 0}>
+            <CheckCheck size={16} /> Marcar todas como lidas
+          </button>
+        )}
       </header>
 
       {erro && <div className="p-3 rounded" style={errBox}>{erro}</div>}
 
-      {!isAdmin && (
-        <div className="card-elevated p-5 text-center text-muted-efc" style={{ fontSize: '0.875rem' }}>
-          As notificações do aluno ficam disponíveis quando o login real estiver integrado ao banco.
-        </div>
-      )}
+      <div className="d-flex flex-column gap-3">
+        {notificacoes.length === 0 && (
+          <div className="card-elevated p-5 text-center text-muted-efc" style={{ fontSize: '0.875rem' }}>
+            Nenhuma notificação.
+          </div>
+        )}
 
-      {isAdmin && (
-        <div className="d-flex flex-column gap-3">
-          {notificacoes.length === 0 && (
-            <div className="card-elevated p-5 text-center text-muted-efc" style={{ fontSize: '0.875rem' }}>
-              Nenhuma notificação.
-            </div>
-          )}
-
-          {notificacoes.map((n) => {
-            const s = estiloTipo(n.tipoNotificacao)
-            return (
-              <div key={n.id} className="card-elevated p-4" style={{ opacity: n.lida ? 0.75 : 1 }}>
-                <div className="d-flex align-items-start justify-content-between gap-3">
-                  <div className="d-flex align-items-start gap-3">
-                    <div className="flex-shrink-0 d-flex align-items-center justify-content-center rounded"
-                      style={{ width: 36, height: 36, background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
-                      <Bell size={16} />
-                    </div>
-                    <div>
-                      <p className="mb-1 fw-medium d-flex align-items-center gap-2" style={{ fontSize: '0.9375rem' }}>
-                        {n.aluno?.nome ?? `Aluno #${n.alunoId}`}
-                        <span style={{ fontSize: '0.6875rem', color: s.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                          {s.label}
-                        </span>
-                        {!n.lida && (
-                          <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#6c7f8e' }} />
-                        )}
-                      </p>
-                      <p className="mb-1 text-muted-efc" style={{ fontSize: '0.875rem' }}>{n.mensagem}</p>
-                      <p className="mb-0 text-muted-efc" style={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {new Date(n.data).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
+        {notificacoes.map((n) => {
+          const s = estiloTipo(n.tipoNotificacao)
+          return (
+            <div key={n.id} className="card-elevated p-4" style={{ opacity: n.lida ? 0.75 : 1 }}>
+              <div className="d-flex align-items-start justify-content-between gap-3">
+                <div className="d-flex align-items-start gap-3">
+                  <div className="flex-shrink-0 d-flex align-items-center justify-content-center rounded"
+                    style={{ width: 36, height: 36, background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
+                    <Bell size={16} />
                   </div>
-                  <div className="d-flex align-items-center gap-1 flex-shrink-0">
-                    {!n.lida && (
-                      <button className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-                        onClick={() => handleMarcarLida(n)}>
-                        <CheckCircle2 size={14} /> Marcar lida
-                      </button>
-                    )}
-                    <button className="btn btn-sm p-1 lh-1" style={{ color: '#f87171' }} title="Excluir"
-                      onClick={() => handleExcluir(n)}><Trash2 size={15} /></button>
+                  <div>
+                    <p className="mb-1 fw-medium d-flex align-items-center gap-2" style={{ fontSize: '0.9375rem' }}>
+                      {isAdmin && (n.aluno?.nome ?? `Aluno #${n.alunoId}`)}
+                      <span style={{ fontSize: '0.6875rem', color: s.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {s.label}
+                      </span>
+                      {!n.lida && (
+                        <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: '#6c7f8e' }} />
+                      )}
+                    </p>
+                    <p className="mb-1 text-muted-efc" style={{ fontSize: '0.875rem' }}>{n.mensagem}</p>
+                    <p className="mb-0 text-muted-efc" style={{ fontSize: '0.6875rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {new Date(n.data).toLocaleDateString('pt-BR')}
+                    </p>
                   </div>
                 </div>
+                <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                  {!n.lida && (
+                    <button className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+                      onClick={() => handleMarcarLida(n)}>
+                      <CheckCircle2 size={14} /> Marcar lida
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button className="btn btn-sm p-1 lh-1" style={{ color: '#f87171' }} title="Excluir"
+                      onClick={() => handleExcluir(n)}><Trash2 size={15} /></button>
+                  )}
+                </div>
               </div>
-            )
-          })}
-        </div>
-      )}
+            </div>
+          )
+        })}
+      </div>
 
       {modalOpen && (
         <>

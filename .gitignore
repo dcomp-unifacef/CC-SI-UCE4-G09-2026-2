@@ -142,3 +142,12 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
+
+# Documentação de desenvolvimento (arquivos temporários)
+DIAGNOSTICO_*.md
+INTEGRACAO_*.md
+GUIA_*.md
+RESUMO_*.md
+ETAPA*.md
+SUMARIO_*.md
+TESTES_*.sh
