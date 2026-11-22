@@ -4,6 +4,7 @@ import type {
     NextFunction,
 } from "express"
 
+import { BadRequestError } from "../errors/BadRequestError"
 import * as service from "../services/alunoService"
 
 import type { CreateAlunoDto } from "../dto/aluno/createAlunoDto"
@@ -113,4 +114,15 @@ export async function remove(
     } catch (error) {
         next(error);
     }
+}
+
+export async function criarAcesso(req: Request<AlunoIdParams>, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = Number(req.params.id)
+    if (!Number.isInteger(id) || id <= 0) throw new BadRequestError("ID inválido.")
+    const resultado = await service.criarAcessoParaAluno(id)
+    res.status(200).json(resultado)
+  } catch (error) {
+    next(error)
+  }
 }

@@ -1,24 +1,54 @@
-import { useMemo } from 'react'
-import { Trophy, Calendar, MapPin } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import { campeonatosMock } from '../../data/mockData'
-import type { StatusInscricao } from '../../types'
-import BadgeModalidade from '../../components/BadgeModalidade'
+import { useEffect, useState } from 'react'
+import { Trophy, Calendar, MapPin, Loader2 } from 'lucide-react'
+import { alunoMeApi } from '../../services/api'
+import type { InscricaoCampeonatoAPI } from '../../services/api'
 
-const statusColors: Record<StatusInscricao, { color: string; border: string; bg: string }> = {
-  inscrito:   { color: '#8a9dac', border: 'rgba(108,127,142,.3)', bg: 'rgba(108,127,142,.1)' },
-  confirmado: { color: '#4ade80', border: 'rgba(74,222,128,.3)',  bg: 'rgba(74,222,128,.1)'  },
-  desistiu:   { color: '#f87171', border: 'rgba(248,113,113,.3)', bg: 'rgba(248,113,113,.1)' },
+const MODALIDADE_COLORS: Record<string, string> = {
+  Boxe: '#f87171',
+  'Muay Thai': '#fbbf24',
+  'Jiu-Jitsu': '#60a5fa',
+  Funcional: '#4ade80',
 }
 
 export default function MeusCampeonatos() {
-  const { user } = useAuth()
-  const id = user?.alunoId ?? 'a2'
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [inscricoes, setInscricoes] = useState<InscricaoCampeonatoAPI[]>([])
 
-  const meus = useMemo(
-    () => campeonatosMock.filter((c) => c.inscricoes.some((i) => i.alunoId === id)),
-    [id],
-  )
+  useEffect(() => {
+    async function carregar() {
+      setLoading(true)
+      setErro(null)
+      try {
+        const dados = await alunoMeApi.obterCampeonatos()
+        setInscricoes(dados)
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao carregar campeonatos')
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregar()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <Loader2 size={32} className="spin" style={{ color: '#6c7f8e' }} />
+      </div>
+    )
+  }
+
+  if (erro) {
+    return (
+      <div className="d-flex flex-column gap-4">
+        <div><p className="page-eyebrow">Competições</p><h1 className="page-title">MEUS CAMPEONATOS</h1></div>
+        <div className="card-elevated p-4" style={{ border: '1px solid rgba(248,113,113,.3)' }}>
+          <p style={{ color: '#f87171', marginBottom: 0 }}>{erro}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="d-flex flex-column gap-4">
@@ -27,7 +57,7 @@ export default function MeusCampeonatos() {
         <h1 className="page-title">MEUS CAMPEONATOS</h1>
       </header>
 
-      {meus.length === 0 && (
+      {inscricoes.length === 0 && (
         <div
           className="card-elevated p-5 text-center text-muted-efc"
           style={{ fontSize: '0.875rem' }}
@@ -37,13 +67,15 @@ export default function MeusCampeonatos() {
       )}
 
       <div className="row g-3">
-        {meus.map((c) => {
-          const ins = c.inscricoes.find((i) => i.alunoId === id)!
-          const sc  = statusColors[ins.status]
-          const cat = c.categorias.find((x) => x.id === ins.categoriaId)
+        {inscricoes.map((inscricao) => {
+          const c = inscricao.campeonato
+          // Status fixo como "inscrito" (schema não tem campo status)
+          const statusColor = '#8a9dac'
+          const statusBg = 'rgba(108,127,142,.1)'
+          const statusBorder = 'rgba(108,127,142,.3)'
 
           return (
-            <div key={c.id} className="col-md-6">
+            <div key={inscricao.id} className="col-md-6">
               <div className="card-elevated p-4 h-100 d-flex flex-column gap-3">
                 <div className="d-flex align-items-start justify-content-between gap-2">
                   <div className="d-flex align-items-center gap-2">
@@ -58,13 +90,16 @@ export default function MeusCampeonatos() {
                   <span
                     className="rounded-pill px-2 py-1 flex-shrink-0"
                     style={{
-                      background: sc.bg, color: sc.color,
-                      border: `1px solid ${sc.border}`,
-                      fontSize: '0.6875rem', fontWeight: 600,
-                      textTransform: 'uppercase', letterSpacing: '0.05em',
+                      background: statusBg, 
+                      color: statusColor,
+                      border: `1px solid ${statusBorder}`,
+                      fontSize: '0.6875rem', 
+                      fontWeight: 600,
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.05em',
                     }}
                   >
-                    {ins.status}
+                    INSCRITO
                   </span>
                 </div>
 
@@ -79,23 +114,45 @@ export default function MeusCampeonatos() {
                   </p>
                 </div>
 
-                <div className="d-flex flex-wrap gap-1">
-                  {c.modalidades.map((m) => <BadgeModalidade key={m} modalidade={m} />)}
-                </div>
+                {/* Modalidades - campo não existe no schema atual, usando pesosDeLuta como proxy */}
+                {c.pesosDeLuta && c.pesosDeLuta.length > 0 && (
+                  <div className="d-flex flex-wrap gap-1">
+                    {c.pesosDeLuta.slice(0, 3).map((peso, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-pill px-2 py-1"
+                        style={{
+                          background: 'rgba(108,127,142,.1)',
+                          color: '#8a9dac',
+                          fontSize: '0.6875rem',
+                          fontWeight: 600,
+                        }}
+                      >
+                        {peso}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-                {cat && (
+                <p className="mb-0 text-muted-efc" style={{ fontSize: '0.8125rem' }}>
+                  Peso de luta:{' '}
+                  <span className="fw-medium" style={{ color: '#fff' }}>
+                    {inscricao.pesoDeLuta}
+                  </span>
+                </p>
+
+                {c.valores > 0 && (
                   <p className="mb-0 text-muted-efc" style={{ fontSize: '0.8125rem' }}>
-                    Categoria:{' '}
+                    Taxa:{' '}
                     <span className="fw-medium" style={{ color: '#fff' }}>
-                      {cat.nome}{cat.pesoMax ? ` (até ${cat.pesoMax}kg)` : ''}
+                      R$ {c.valores.toFixed(2)}
                     </span>
                   </p>
                 )}
 
-                {c.taxaInscricao > 0 && (
-                  <p className="mb-0 text-muted-efc" style={{ fontSize: '0.8125rem' }}>
-                    Taxa:{' '}
-                    <span className="fw-medium" style={{ color: '#fff' }}>R$ {c.taxaInscricao}</span>
+                {c.descricao && (
+                  <p className="mb-0 text-muted-efc" style={{ fontSize: '0.8125rem', lineHeight: 1.5 }}>
+                    {c.descricao}
                   </p>
                 )}
               </div>

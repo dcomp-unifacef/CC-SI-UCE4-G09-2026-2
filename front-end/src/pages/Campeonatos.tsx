@@ -2,17 +2,15 @@ import { useState, useEffect, useCallback } from 'react'
 import { Calendar, MapPin, Users, Trophy, X, Plus, Loader2, Trash2 } from 'lucide-react'
 import { campeonatosApi, alunosApi } from '../services/api'
 import type { CampeonatoAPI, AlunoAPI } from '../services/api'
-import type { StatusCampeonato } from '../types'
-import BadgeModalidade from '../components/BadgeModalidade'
 import Toast from '../components/Toast'
 import SkeletonLoader from '../components/SkeletonLoader'
 
-const statusStyle: Record<StatusCampeonato, { bg: string; color: string; border: string }> = {
-  'Confirmado':         { bg: 'rgba(45,106,79,.15)',  color: '#4ade80', border: 'rgba(45,106,79,.3)' },
-  'Em organização':     { bg: 'rgba(146,102,26,.15)', color: '#fbbf24', border: 'rgba(146,102,26,.3)' },
-  'Inscrições abertas': { bg: 'rgba(108,127,142,.15)',color: '#8a9dac', border: 'rgba(108,127,142,.3)' },
-  'Encerrado':          { bg: 'rgba(42,42,42,.5)',    color: '#a0a0a0', border: '#2a2a2a' },
-}
+// const statusStyle: Record<StatusCampeonato, { bg: string; color: string; border: string }> = {
+//   'Confirmado':         { bg: 'rgba(45,106,79,.15)',  color: '#4ade80', border: 'rgba(45,106,79,.3)' },
+//   'Em organização':     { bg: 'rgba(146,102,26,.15)', color: '#fbbf24', border: 'rgba(146,102,26,.3)' },
+//   'Inscrições abertas': { bg: 'rgba(108,127,142,.15)',color: '#8a9dac', border: 'rgba(108,127,142,.3)' },
+//   'Encerrado':          { bg: 'rgba(42,42,42,.5)',    color: '#a0a0a0', border: '#2a2a2a' },
+// }
 
 const FORM_VAZIO = {
   nome: '', data: '', local: '', locomocao: '',
@@ -152,7 +150,6 @@ export default function Campeonatos() {
           const total = c.inscricoes.length
           const max   = Math.max(10, c.pesosDeLuta.length * 4)
           const pct   = Math.min(100, Math.round((total / max) * 100))
-          const ss    = statusStyle['Confirmado'] // back não persiste status de campeonato
 
           return (
             <div key={c.id} className="col-md-6 col-xl-4">

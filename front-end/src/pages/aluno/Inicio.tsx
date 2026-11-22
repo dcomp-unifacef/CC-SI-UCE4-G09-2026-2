@@ -1,45 +1,90 @@
-import { useMemo } from 'react'
-import { Calendar, Flame, Wallet, ClipboardCheck } from 'lucide-react'
-import { useAuth } from '../../contexts/AuthContext'
-import {
-  alunosMock, aulasMock, pagamentosMock, frequenciasMock,
-} from '../../data/mockData'
-import BadgeModalidade from '../../components/BadgeModalidade'
+import { useEffect, useState } from 'react'
+import { Calendar, Flame, Wallet, ClipboardCheck, Loader2 } from 'lucide-react'
+import { alunoMeApi } from '../../services/api'
+import type { AlunoMeAPI, AulaAPI, FinanceiroAPI, PresencaAPI } from '../../services/api'
 import FaixaBadge from '../../components/FaixaBadge'
 import StatusBadge from '../../components/StatusBadge'
 
 const DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado']
 
+const MODALIDADE_COLORS: Record<string, string> = {
+  Boxe: '#f87171',
+  'Muay Thai': '#fbbf24',
+  'Jiu-Jitsu': '#60a5fa',
+  Funcional: '#4ade80',
+}
+
+interface Estado {
+  aluno: AlunoMeAPI | null
+  aulas: AulaAPI[]
+  financeiro: FinanceiroAPI[]
+  presencas: PresencaAPI[]
+}
+
 export default function AlunoInicio() {
-  const { user } = useAuth()
-  const id = user?.alunoId ?? 'a2' // fallback para demo
+  const [loading, setLoading] = useState(true)
+  const [erro, setErro] = useState<string | null>(null)
+  const [dados, setDados] = useState<Estado>({
+    aluno: null,
+    aulas: [],
+    financeiro: [],
+    presencas: [],
+  })
 
-  const aluno = alunosMock.find((a) => a.id === id)
+  useEffect(() => {
+    async function carregar() {
+      setLoading(true)
+      setErro(null)
+      try {
+        const [aluno, aulas, financeiro, presencas] = await Promise.all([
+          alunoMeApi.obterPerfil(),
+          alunoMeApi.obterAulas(),
+          alunoMeApi.obterFinanceiro(),
+          alunoMeApi.obterFrequencia(),
+        ])
+        setDados({ aluno, aulas, financeiro, presencas })
+      } catch (err) {
+        setErro(err instanceof Error ? err.message : 'Erro ao carregar dados')
+      } finally {
+        setLoading(false)
+      }
+    }
+    carregar()
+  }, [])
 
-  const proximas = useMemo(
-    () =>
-      aulasMock
-        .filter((a) => a.status === 'agendada' && aluno?.modalidades.includes(a.modalidade))
-        .slice(0, 4),
-    [aluno],
-  )
+  if (loading) {
+    return (
+      <div className="d-flex align-items-center justify-content-center" style={{ minHeight: '60vh' }}>
+        <Loader2 size={32} className="spin" style={{ color: '#6c7f8e' }} />
+      </div>
+    )
+  }
 
-  const mesAtual = new Date().toISOString().slice(0, 7)
-  const meusPag  = pagamentosMock.filter((p) => p.alunoId === id)
-  const pendentes = meusPag.filter((p) => p.status !== 'pago').length
+  if (erro) {
+    return (
+      <div className="card-elevated p-4" style={{ border: '1px solid rgba(248,113,113,.3)' }}>
+        <p style={{ color: '#f87171', marginBottom: 0 }}>{erro}</p>
+      </div>
+    )
+  }
 
-  const minhasFreq = useMemo(
-    () => frequenciasMock.filter((f) => f.alunoId === id),
-    [id],
-  )
-  const ultimas = minhasFreq.slice(0, 5)
+  const { aluno, aulas, financeiro, presencas } = dados
 
   if (!aluno) return null
 
   const initials = aluno.nome.split(' ').slice(0, 2).map((n) => n[0]).join('')
-  const statusVal = aluno.status === 'Ativo' ? 'ativo'
-    : aluno.status === 'Inadimplente' ? 'inadimplente'
+  const statusVal = aluno.status === 'ATIVO' ? 'ativo'
+    : aluno.status === 'INADIMPLENTE' ? 'inadimplente'
     : 'inativo'
+
+  // Próximas 4 aulas
+  const proximas = aulas.slice(0, 4)
+
+  // Pagamentos pendentes
+  const pendentes = financeiro.filter((f) => f.status !== 'pago').length
+
+  // Últimas 5 presenças
+  const ultimas = presencas.slice(0, 5)
 
   return (
     <div className="d-flex flex-column gap-4">
@@ -68,8 +113,21 @@ export default function AlunoInicio() {
           <div className="flex-fill">
             <p className="fw-semibold mb-1" style={{ fontSize: '1.0625rem' }}>{aluno.nome}</p>
             <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
-              <FaixaBadge faixa={aluno.faixa} showBar={false} />
-              {aluno.modalidades.map((m) => <BadgeModalidade key={m} modalidade={m} />)}
+              <FaixaBadge faixa={aluno.graduacao as any} showBar={false} />
+              {aluno.modalidades.map((m) => (
+                <span
+                  key={m}
+                  className="rounded-pill px-2 py-1"
+                  style={{
+                    background: `${MODALIDADE_COLORS[m] ?? '#6c7f8e'}22`,
+                    color: MODALIDADE_COLORS[m] ?? '#6c7f8e',
+                    fontSize: '0.6875rem',
+                    fontWeight: 600,
+                  }}
+                >
+                  {m}
+                </span>
+              ))}
             </div>
           </div>
           <StatusBadge status={statusVal} />
@@ -105,7 +163,7 @@ export default function AlunoInicio() {
             <div>
               <p className="page-eyebrow mb-0">Check-ins</p>
               <p className="score mb-0" style={{ fontSize: '1.75rem' }}>
-                {minhasFreq.length}
+                {presencas.length}
               </p>
             </div>
           </div>
@@ -154,25 +212,42 @@ export default function AlunoInicio() {
                   Nenhuma aula encontrada.
                 </p>
               )}
-              {proximas.map((a) => (
-                <div
-                  key={a.id}
-                  className="d-flex align-items-center justify-content-between p-3 rounded"
-                  style={{
-                    border: '1px solid #2a2a2a',
-                    background: '#1a1a1a',
-                    fontSize: '0.875rem',
-                  }}
-                >
-                  <div>
-                    <p className="mb-0 fw-medium">{a.nome}</p>
-                    <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
-                      {DIAS[a.diaSemana]} · {a.hora} · {a.professor.split(' ')[0]}
-                    </p>
+              {proximas.map((a) => {
+                const dataAula = new Date(a.data)
+                const diaSemana = dataAula.getDay()
+                const modalidadeNome = a.modalidade?.nome ?? '—'
+                const professorNome = a.professor?.nome?.split(' ')[0] ?? '—'
+
+                return (
+                  <div
+                    key={a.id}
+                    className="d-flex align-items-center justify-content-between p-3 rounded"
+                    style={{
+                      border: '1px solid #2a2a2a',
+                      background: '#1a1a1a',
+                      fontSize: '0.875rem',
+                    }}
+                  >
+                    <div>
+                      <p className="mb-0 fw-medium">{modalidadeNome}</p>
+                      <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
+                        {DIAS[diaSemana]} · {a.horarioInicio} · {professorNome}
+                      </p>
+                    </div>
+                    <span
+                      className="rounded-pill px-2 py-1"
+                      style={{
+                        background: `${MODALIDADE_COLORS[modalidadeNome] ?? '#6c7f8e'}22`,
+                        color: MODALIDADE_COLORS[modalidadeNome] ?? '#6c7f8e',
+                        fontSize: '0.6875rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {modalidadeNome}
+                    </span>
                   </div>
-                  <BadgeModalidade modalidade={a.modalidade} />
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
@@ -191,33 +266,38 @@ export default function AlunoInicio() {
                   Sem check-ins ainda.
                 </p>
               )}
-              {ultimas.map((f) => (
-                <div
-                  key={f.id}
-                  className="d-flex align-items-center justify-content-between p-3 rounded"
-                  style={{ border: '1px solid #2a2a2a', background: '#1a1a1a' }}
-                >
-                  <div>
-                    <p className="mb-0 fw-medium" style={{ fontSize: '0.875rem' }}>
-                      {new Date(f.data).toLocaleDateString('pt-BR')}
-                    </p>
-                    <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
-                      {f.hora} · {f.modalidade}
-                    </p>
-                  </div>
-                  <span
-                    className="rounded-pill px-2 py-1"
-                    style={{
-                      background: 'rgba(74,222,128,.1)',
-                      color: '#4ade80',
-                      fontSize: '0.6875rem',
-                      fontWeight: 600,
-                    }}
+              {ultimas.map((f) => {
+                const dataPresenca = new Date(f.data)
+                const dataFormatada = dataPresenca.toLocaleDateString('pt-BR')
+
+                return (
+                  <div
+                    key={f.id}
+                    className="d-flex align-items-center justify-content-between p-3 rounded"
+                    style={{ border: '1px solid #2a2a2a', background: '#1a1a1a' }}
                   >
-                    Presente
-                  </span>
-                </div>
-              ))}
+                    <div>
+                      <p className="mb-0 fw-medium" style={{ fontSize: '0.875rem' }}>
+                        {dataFormatada}
+                      </p>
+                      <p className="mb-0 text-muted-efc" style={{ fontSize: '0.75rem' }}>
+                        {f.hora}
+                      </p>
+                    </div>
+                    <span
+                      className="rounded-pill px-2 py-1"
+                      style={{
+                        background: 'rgba(74,222,128,.1)',
+                        color: '#4ade80',
+                        fontSize: '0.6875rem',
+                        fontWeight: 600,
+                      }}
+                    >
+                      Presente
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </div>

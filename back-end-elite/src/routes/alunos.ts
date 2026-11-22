@@ -1,16 +1,14 @@
-import { Router } from "express";
-import * as controller
- from "../controllers/alunoController";
+import { Router } from "express"
+import { autenticar, exigirPapel } from "../middlewares/auth"
+import * as controller from "../controllers/alunoController"
 
+const router = Router()
 
-const router = Router();
+router.get("/", autenticar, exigirPapel("ADMIN"), controller.retrieveAll)
+router.get("/:id", autenticar, exigirPapel("ADMIN"), controller.retrieveOne)
+router.post("/", autenticar, exigirPapel("ADMIN"), controller.create)
+router.put("/:id", autenticar, exigirPapel("ADMIN"), controller.update)
+router.delete("/:id", autenticar, exigirPapel("ADMIN"), controller.remove)
+router.post("/:id/criar-acesso", autenticar, exigirPapel("ADMIN"), controller.criarAcesso)
 
-
-router.get("/", controller.retrieveAll);
-router.get("/:id", controller.retrieveOne);
-router.post("/", controller.create);
-router.put("/:id", controller.update);
-router.delete("/:id", controller.remove);
-
-
-export default router;
+export default router

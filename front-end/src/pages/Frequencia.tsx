@@ -3,11 +3,9 @@ import { ScanLine, Clock, Camera, X, Loader2 } from 'lucide-react'
 import { presencasApi, alunosApi } from '../services/api'
 import type { PresencaAPI, AlunoAPI } from '../services/api'
 import type { Modalidade } from '../types'
-import BadgeModalidade from '../components/BadgeModalidade'
 import Toast from '../components/Toast'
 import SkeletonLoader from '../components/SkeletonLoader'
 
-const MODALIDADES: Modalidade[] = ['Boxe', 'Muay Thai', 'Jiu-Jitsu', 'Funcional']
 
 interface ToastState { msg: string; type: 'success' | 'danger' | 'warning' }
 
@@ -19,7 +17,7 @@ export default function Frequencia() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [alunoSel, setAlunoSel]   = useState('')
-  const [modSel, setModSel]       = useState<Modalidade>('Muay Thai')
+  const [_modSel, _setModSel]       = useState<Modalidade>('Muay Thai')
   const [salvando, setSalvando]   = useState(false)
 
   const today = new Date().toISOString().slice(0, 10)

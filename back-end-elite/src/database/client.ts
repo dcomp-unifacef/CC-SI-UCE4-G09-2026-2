@@ -30,12 +30,15 @@ const prisma = new PrismaClient({
 });
 
 
+const TABELAS_SENSIVEIS = /"(Usuario|ResetSenhaToken)"/;
+
 // Esta são as instruções que mostrarão no terminal todas
 // as instruções SQL geradas pelo Prisma
 prisma.$on("query", (e) => {
  console.log("---");
  console.log("Query: " + e.query);
- console.log("Params: " + e.params);
+ // Nunca registrar e-mail, hash de senha ou token de redefinição nos logs.
+ console.log("Params: " + (TABELAS_SENSIVEIS.test(e.query) ? "[ocultado]" : e.params));
  console.log("Duration: " + e.duration + "ms");
 });
 

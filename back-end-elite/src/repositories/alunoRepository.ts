@@ -43,3 +43,9 @@ export function remove(id: number) {
   });
 }
 
+
+export function findByUsuarioId(usuarioId: number) {
+  return prisma.aluno.findUnique({
+    where: { usuarioId },
+  });
+}

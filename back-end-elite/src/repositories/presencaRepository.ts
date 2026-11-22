@@ -37,3 +37,11 @@ export function update(id: number, data: UpdatePresencaDto & { data?: Date }) {
 export function remove(id: number) {
   return prisma.presenca.delete({ where: { id } });
 }
+
+export function findByAlunoId(alunoId: number) {
+  return prisma.presenca.findMany({
+    where: { alunoId },
+    orderBy: { data: "desc" },
+    include: { aluno: { select: { id: true, nome: true, cpf: true } } },
+  })
+}

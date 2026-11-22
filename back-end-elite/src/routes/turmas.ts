@@ -1,14 +1,13 @@
-import { Router } from "express";
-
+import { Router } from "express"
+import { autenticar, exigirPapel } from "../middlewares/auth"
 import * as controller from "../controllers/turmaController"
 
-const router = Router();
+const router = Router()
 
-router.get("/", controller.retrieveAll);
-router.get("/:id", controller.retrieveOne);
-router.post("/", controller.create);
-router.put("/:id", controller.update);
-router.delete("/:id", controller.remove);
+router.get("/", autenticar, exigirPapel("ADMIN"), controller.retrieveAll)
+router.get("/:id", autenticar, exigirPapel("ADMIN"), controller.retrieveOne)
+router.post("/", autenticar, exigirPapel("ADMIN"), controller.create)
+router.put("/:id", autenticar, exigirPapel("ADMIN"), controller.update)
+router.delete("/:id", autenticar, exigirPapel("ADMIN"), controller.remove)
 
-
-export default router;
+export default router

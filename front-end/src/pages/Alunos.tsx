@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Search, LayoutGrid, List, Plus, X, Pencil, Trash2, Loader2 } from 'lucide-react'
 import { useAlunos } from '../hooks/useAlunos'
-import { alunoFromAPI, alunoToAPI, statusToAPI } from '../services/mappers'
+import { alunosApi } from '../services/api'
+import { alunoFromAPI, statusToAPI } from '../services/mappers'
 import type { Aluno, Modalidade, Faixa, StatusAluno } from '../types'
 import AlunoCard from '../components/AlunoCard'
 import OffcanvasPerfil from '../components/OffcanvasPerfil'
@@ -121,6 +122,19 @@ export default function Alunos() {
     }
   }
 
+  const handleCriarAcesso = async (a: Aluno) => {
+    setSalvando(true)
+    try {
+      const resp = await alunosApi.criarAcesso(Number(a.id))
+      const msg = resp.message + (import.meta.env.DEV && resp.link ? ` Link: ${resp.link}` : '')
+      setToast({ msg, type: 'success' })
+    } catch (err) {
+      setToast({ msg: err instanceof Error ? err.message : 'Erro ao criar acesso.', type: 'danger' })
+    } finally {
+      setSalvando(false)
+    }
+  }
+
   if (loading) return (
     <div className="d-flex flex-column gap-4">
       <div><p className="page-eyebrow">Cadastro</p><h1 className="page-title">ALUNOS</h1></div>
@@ -236,6 +250,12 @@ export default function Alunos() {
                   <td><StatusBadge status={a.status === 'Ativo' ? 'ativo' : a.status === 'Inadimplente' ? 'inadimplente' : 'inativo'} /></td>
                   <td onClick={(e) => e.stopPropagation()}>
                     <div className="d-flex gap-1">
+                      {!alunosAPI.find((x) => String(x.id) === a.id)?.usuarioId && (
+                        <button className="btn btn-sm p-1 lh-1" style={{ color: '#4ade80' }} title="Criar acesso"
+                          onClick={() => handleCriarAcesso(a)} disabled={salvando}>
+                          {salvando ? <Loader2 size={14} className="spin" /> : <span style={{fontSize: '0.75rem'}}>🔑</span>}
+                        </button>
+                      )}
                       <button className="btn btn-sm p-1 lh-1 text-muted-efc" title="Editar"
                         onClick={() => abrirEditar(a)}><Pencil size={14} /></button>
                       <button className="btn btn-sm p-1 lh-1" style={{ color: '#f87171' }} title="Excluir"

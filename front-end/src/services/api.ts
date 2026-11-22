@@ -96,7 +96,7 @@ export interface ProfessorAPI {
     id: number
     turma?: { id: number; nome: string }
     modalidade?: { id: number; nome: string }
-  }[]
+  }[] 
 }
 
 // ----------------------------------------------------------------

@@ -23,7 +23,7 @@ interface Props {
 export default function OffcanvasPerfil({ aluno, show, onHide }: Props) {
   const [tab, setTab] = useState<'dados' | 'freq' | 'fin' | 'evo'>('dados')
   const [novoPeso, setNovoPeso] = useState('')
-  const [medições, setMedicoes] = useState(() => ({ ...medicoesMock }))
+  const [_medições, setMedicoes] = useState(() => ({ ...medicoesMock }))
 
   if (!aluno) return null
 

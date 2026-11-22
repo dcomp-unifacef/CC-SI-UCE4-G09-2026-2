@@ -23,11 +23,11 @@ const nav = [
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
-  const { signOut, user, isAdmin } = useAuth()
+  const { logout, user, isAdmin } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    signOut()
+    logout()
     navigate('/login')
   }
 

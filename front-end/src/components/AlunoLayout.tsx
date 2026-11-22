@@ -21,11 +21,11 @@ const nav = [
 
 export default function AlunoLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
-  const { signOut, user } = useAuth()
+  const { logout, user } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    signOut()
+    logout()
     navigate('/login')
   }
 
