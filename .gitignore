@@ -162,3 +162,8 @@ TESTES_*.sh
 /INTEGRACAO_MINHAS_AULAS.md
 /INTEGRACAO_MINHA_EVOLUCAO.md
 /SUMARIO_EXECUTIVO.md
+
+# Arquivos internos
+/TESTES_CURL_INICIO.sh
+/package.json
+/package-lock.json
